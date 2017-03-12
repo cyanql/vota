@@ -1,0 +1,40 @@
+{
+  "name": "dota2-view",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "NODE_ENV=development webpack-dev-server --progress",
+	"dist": "NODE_ENV=production webpack --progress",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "dota2"
+  ],
+  "author": "keyves",
+  "license": "MIT",
+  "dependencies": {
+    "isomorphic-fetch": "^2.2.1",
+    "vue": "^2.2.2"
+  },
+  "devDependencies": {
+    "babel-core": "^6.23.1",
+    "babel-loader": "^6.4.0",
+    "babel-plugin-transform-runtime": "^6.23.0",
+    "babel-preset-es2015": "^6.22.0",
+    "css-loader": "^0.27.1",
+    "extract-text-webpack-plugin": "^2.1.0",
+    "html-webpack-plugin": "^2.28.0",
+    "node-sass": "^4.5.0",
+    "optimize-css-assets-webpack-plugin": "^1.3.0",
+    "sass-loader": "^6.0.3",
+    "style-loader": "^0.13.2",
+    "vue-hot-reload-api": "^2.0.11",
+    "vue-html-loader": "^1.2.4",
+    "vue-loader": "^11.1.4",
+    "vue-style-loader": "^2.0.3",
+    "vue-template-compiler": "^2.2.2",
+    "webpack": "^2.2.1",
+    "webpack-dev-server": "^2.4.1"
+  }
+}
