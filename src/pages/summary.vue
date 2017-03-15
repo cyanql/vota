@@ -37,12 +37,9 @@
 <script>
 import Team from 'src/components/team'
 import DateLib from 'src/lib/DateLib'
-import HEROS from 'src/constants/heros'
+import HERO_MAP from 'src/constants/heroMap'
 import ITEM_MAP from 'src/constants/itemMap'
-import ITEMS from 'src/constants/items'
-
-
-const HOST = 'https://api.opendota.com'
+import API from 'src/constants/api'
 
 function percentify(decimal) {
 	return (decimal * 100).toFixed(1) + '%'
@@ -62,13 +59,13 @@ export default {
 				match.dist_now = DateLib.getDistanceNow(new Date(match.start_time * 1000))
 				match.duration_hour = Math.round(match.duration / 60) + '分钟'
 				match.players.forEach(v => {
-					v.hero_img = HOST + HEROS[v.hero_id].img
-					v.item_0 = HOST + (ITEMS[ITEM_MAP[v.item_0]] || {}).img
-					v.item_1 = HOST + (ITEMS[ITEM_MAP[v.item_1]] || {}).img
-					v.item_2 = HOST + (ITEMS[ITEM_MAP[v.item_2]] || {}).img
-					v.item_3 = HOST + (ITEMS[ITEM_MAP[v.item_3]] || {}).img
-					v.item_4 = HOST + (ITEMS[ITEM_MAP[v.item_4]] || {}).img
-					v.item_5 = HOST + (ITEMS[ITEM_MAP[v.item_5]] || {}).img
+					v.hero_img = API.HOST + HERO_MAP[v.hero_id].img
+					v.item_0 = API.HOST + (ITEM_MAP[v.item_0] || {}).img
+					v.item_1 = API.HOST + (ITEM_MAP[v.item_1] || {}).img
+					v.item_2 = API.HOST + (ITEM_MAP[v.item_2] || {}).img
+					v.item_3 = API.HOST + (ITEM_MAP[v.item_3] || {}).img
+					v.item_4 = API.HOST + (ITEM_MAP[v.item_4] || {}).img
+					v.item_5 = API.HOST + (ITEM_MAP[v.item_5] || {}).img
 				})
 
 				match.radiant_players = []

@@ -14,7 +14,7 @@
 <script>
 import API from 'src/constants/api'
 import DateLib from 'src/lib/DateLib'
-import HEROS from 'src/constants/heros'
+import HERO_MAP from 'src/constants/heroMap'
 
 export default {
 	data() {
@@ -26,7 +26,7 @@ export default {
 	computed: {
 		oMatches() {
 			return this.matches.map(match => {
-				match.hero_img = API.HOST + HEROS[match.hero_id].img
+				match.hero_img = API.HOST + HERO_MAP[match.hero_id].img
 				match.win = match.player_slot < 5 ? match.radiant_win : !match.radiant_win
 				match.dist_now = DateLib.getDistanceNow(new Date(match.start_time * 1000))
 				return match
