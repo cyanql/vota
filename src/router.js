@@ -14,7 +14,7 @@ const routes = Object.keys(Components).map(name => {
 
 routes.unshift({
 	path: '',
-	redirect: '/log'
+	redirect: '/home'
 })
 
 // routes.push({

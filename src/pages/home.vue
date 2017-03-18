@@ -1,7 +1,7 @@
 <template>
 	<div>
 		<h1>玩家昵称：<input v-model="player_id"><button @click="onClick">确认</button></h1>
-		<div class="player-row" v-for="player in players">
+		<div class="player-row" v-for="player in players" @click="toUserInfoPage()">
 			<img class="avatar" :src="player.avatarfull" alt="avatar">
 			<span class="username">{{player.personaname}}</span>
 			<span class="userid">ID:{{player.account_id}}</span>
@@ -27,8 +27,11 @@ export default {
 			.then(json => {
 				this.players = json
 			})
+		},
+		toUserInfoPage() {
+			
 		}
-	},
+	}
 }
 </script>
 

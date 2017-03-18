@@ -35,7 +35,7 @@
 </template>
 
 <script>
-import Team from 'src/components/team'
+import Team from 'src/component/team'
 import DateLib from 'src/lib/DateLib'
 import HERO_MAP from 'src/constants/heroMap'
 import ITEM_MAP from 'src/constants/itemMap'
