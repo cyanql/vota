@@ -1,13 +1,15 @@
-import serialize from 'src/utils/serialize'
+import serialize from 'src/util/serialize'
 
+const IMG_HOST = 'http://cdn.dota2.com'
 const HOST = 'https://api.opendota.com'
 const BASE = '/api'
 
-const API_BASE = API_BASE + BASE
+const API_BASE = HOST + BASE
 
 const API = {
 	HOST,
 	BASE,
+	IMG_HOST,
 	matches: `${API_BASE}/matches/{match_id}`,
 	players: {
 		_: `${API_BASE}/players/{account_id}`,
@@ -44,10 +46,10 @@ const API = {
 	leagues: `${API_BASE}/leagues`,
 	teams: `${API_BASE}/teams`,
 	replays: `${API_BASE}/replays`,
-	request(url, { param, query }) {
+	fetch(url, { param, query, method = 'get' }) {
 		url = param ? url.replace(/{[\w_]+}/, param) : url
 		url = query ? url + '?' + serialize(query) : url
-		return fetch(url)
+		return fetch(url, {method})
 	}
 }
 

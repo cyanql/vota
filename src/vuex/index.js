@@ -3,7 +3,7 @@ import Vuex from 'vuex'
 import * as actions from './actions'
 import storeConf from './store'
 
-Vue.use(Vuex)
+process.env.NODE_ENV !== 'production' && Vue.use(Vuex)
 
 storeConf.actions = actions
 

@@ -1,16 +1,34 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import * as Components from './pages'
+import Userinfo from './pages/userinfo'
+import Home from './pages/home'
+import Match from './pages/match'
+import Log from './pages/match/log'
+import Summary from './pages/match/summary'
 
-Vue.use(VueRouter)
+process.env.NODE_ENV !== 'production' && Vue.use(VueRouter)
 
-const routes = Object.keys(Components).map(name => {
-	return {
-		name,
-		path: '/' + name,
-		component: Components[name]
-	}
-})
+const routes = [{
+	name: 'home',
+	path: '/home',
+	component: Home
+}, {
+	name: 'userinfo',
+	path: '/Userinfo',
+	component: Userinfo
+}, {
+	path: '/match',
+	component: Match,
+	children: [{
+		name: 'log',
+		path: 'log',
+		component: Log
+	}, {
+		name: 'summary',
+		path: 'summary',
+		component: Summary
+	}]
+}]
 
 routes.unshift({
 	path: '',

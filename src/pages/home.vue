@@ -1,41 +1,69 @@
 <template>
-	<div>
-		<h1>玩家昵称：<input v-model="player_id"><button @click="onClick">确认</button></h1>
-		<div class="player-row" v-for="player in players" @click="toUserInfoPage()">
-			<img class="avatar" :src="player.avatarfull" alt="avatar">
-			<span class="username">{{player.personaname}}</span>
-			<span class="userid">ID:{{player.account_id}}</span>
-			<span class="arrow">></span>
+	<div class="box-view">
+		<h1>玩家昵称：<input :value="username" @input="changeUserName($event.target.value)"><button @click="getUsersFetch(username)">确认</button></h1>
+		<div class="scroll-view">
+			<div class="player-row" v-for="user in users" @click="getMatchesFetch(user)">
+				<img class="avatar" :src="user.avatarfull" alt="avatar">
+				<span class="username">{{user.personaname}}</span>
+				<span class="userid">ID:{{user.account_id}}</span>
+				<span class="arrow">></span>
+			</div>
+			<dl class="history">
+				<dt>
+					<span>历史搜索记录</span>
+					<span class="btn" @click="removeLocalData('usernames')">清空</span>
+				</dt>
+				<dd class="player-row" v-for="user in historyUsers" @click="getMatchesFetch(user)">
+					<img class="avatar" :src="user.avatarfull" alt="avatar">
+					<span class="username">{{user.personaname}}</span>
+					<span class="userid">ID:{{user.account_id}}</span>
+					<span class="arrow">></span>
+				</dd>
+			</dl>
 		</div>
 	</div>
 </template>
 
 <script>
-import API from 'src/constants/api'
+import { mapState, mapActions } from 'vuex'
 
 export default {
-	data() {
-		return {
-			player_id: '',
-			players: process.env.NODE_ENV === 'development' ? require('src/../.data/players.json') : []
-		}
-	},
+	computed: mapState({
+		historyUsers: state => state.status.history.users,
+		username: state => state.status.username,
+		users: state => state.users
+	}),
 	methods: {
-		onClick() {
-			API.request(API.search, {query: {q: this.player_id}})
-			.then(res => res.json())
-			.then(json => {
-				this.players = json
-			})
-		},
-		toUserInfoPage() {
-			
-		}
+		...mapActions([
+			'changeUserName',
+			'getUsersFetch',
+			'getMatchesFetch',
+			'removeLocalData'
+		])
 	}
 }
 </script>
 
 <style lang="scss" scoped>
+
+.history {
+	dt {
+		display: flex;
+		justify-content: space-between;
+		padding: 10px;
+		background-color: #ddd;
+
+		.btn {
+			opacity: .5;
+		}
+	}
+
+	dd {
+		padding: 10px;
+		border-bottom: 1px solid #ddd;
+	}
+}
+
 .player-row {
 	display: flex;
 	align-items: center;

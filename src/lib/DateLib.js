@@ -43,7 +43,7 @@ DateLib.prototype = {
 	}
 }
 
-DateLib.getDistanceNow = function(date) {
+DateLib.fromNow = function(date) {
 	if (!(date instanceof Date))
 		throw new Error('the first param should be a Date Object')
 

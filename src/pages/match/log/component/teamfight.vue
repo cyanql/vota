@@ -2,10 +2,10 @@
 	<div class="log-teamfight">
 		<div class="log-players" @click="onClick">
 			<div class="team">
-				<figure v-for="player in radiant" class="hero" :class="player.class" v-if="player.damage" :style="`background-image: url(${player.hero_img})`"></figure>
+				<figure v-for="player in log.radiant_players" class="hero" :class="player.class" v-if="player.damage" :style="`background-image: url(${player.hero_img})`"></figure>
 			</div>
 			<div class="team">
-				<figure v-for="player in dire" class="hero" :class="player.class" v-if="player.damage" :style="`background-image: url(${player.hero_img})`"></figure>
+				<figure v-for="player in log.dire_players" class="hero" :class="player.class" v-if="player.damage" :style="`background-image: url(${player.hero_img})`"></figure>
 			</div>
 			<div class="log-info">
 				<p>{{log.start}} - {{log.end}}</p>
@@ -16,7 +16,7 @@
 		<expand-transition>
 			<div class="log-detail" v-show="detailVisible">
 				<div class="team">
-					<div v-for="player in radiant" v-if="player.damage">
+					<div v-for="player in log.radiant_players" v-if="player.damage">
 						<p>{{player.deaths}}</p>
 						<div class="bar-chart">
 							<span>{{player.damage}}</span>
@@ -27,7 +27,7 @@
 					</div>
 				</div>
 				<div class="team">
-					<div v-for="player in dire" v-if="player.damage">
+					<div v-for="player in log.dire_players" v-if="player.damage">
 						<p>{{player.deaths}}</p>
 						<div class="bar-chart">
 							<span>{{player.damage}}</span>
@@ -51,35 +51,7 @@ const HOST = 'http://cdn.dota2.com'
 export default {
 	props: ['log'],
 	data() {
-		let total_damage = 0, players
-		players = this.log.players.map(v => {
-			v.class = {
-				death: !!v.deaths
-			}
-			v.abilitys = Object.keys(v.ability_uses).map(key => {
-				return {
-					name: key,
-					times: v.ability_uses[key],
-					img: HOST + '/apps/dota2/images/abilities/' + key + '_sm.png'
-				}
-			})
-			v.items = Object.keys(v.item_uses).map(key => {
-				return {
-					name: key,
-					times: v.item_uses[key],
-					img: HOST + ITEMS[key].img
-				}
-			})
-			total_damage += v.damage
-			return v
-		})
-		players = players.map(v => {
-			v.damage_percent = (v.damage / total_damage * 100) + '%'
-			return v
-		})
 		return {
-			radiant: players.slice(0, 5),
-			dire: players.slice(5),
 			detailVisible: false
 		}
 	},

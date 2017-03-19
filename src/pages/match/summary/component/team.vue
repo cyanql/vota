@@ -23,11 +23,6 @@ import Player from './player'
 
 export default {
 	props: ['players', 'faction', 'win', 'score'],
-	computed: {
-		totalDamage() {
-			return
-		}
-	},
 	components: {
 		'd-player': Player
 	}
