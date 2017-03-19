@@ -40,7 +40,6 @@ ul, ol, ul > li, ol > li { list-style: none; }
 
 /** 重置文本格式元素 **/
 a { text-decoration: none; }
-a:hover { text-decoration: underline; }
 a,
 a:hover,
 a:active,
@@ -62,3 +61,21 @@ button, input, select, textarea { font-size: 100%; } /* 使得表单元素在 ie
 
 /** 重置表格元素 **/
 table { border-collapse: collapse; border-spacing: 0; }
+
+
+.box-view {
+	position: absolute;
+	left: 0;
+	right: 0;
+	width: 100%;
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+
+	.scroll-view {
+		flex: 1;
+		overflow-x: hidden;
+		overflow-y: scroll;
+		-webkit-overflow-scrolling: touch;
+	}
+}

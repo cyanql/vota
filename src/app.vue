@@ -1,158 +1,45 @@
 <template>
-	<div>
-		<h1>比赛ID：<input type="number" v-model="match_id"><button @click="onClick">确认</button></h1>
-		<div v-if="oMatch">
-			<table>
-				<thead>
-					<tr><th>结束时间</th><th>持续时间</th><th>Level</th><th>比赛模式</th></tr>
-				</thead>
-				<tbody>
-					<tr>
-						<td>{{oMatch.dist_now}}</td>
-						<td>{{oMatch.duration_hour}}</td>
-						<td>{{oMatch.lobby_type}}</td>
-						<td>{{oMatch.game_mode}}</td>
-					</tr>
-				</tbody>
-			</table>
-			<d-team
-				class="radiant"
-				faction="天辉"
-				:players="oMatch.radiant_players"
-				:win="oMatch.radiant_win"
-				:score="oMatch.radiant_score"
-				>
-			</d-team>
-			<d-team
-				class="dire"
-				faction="夜宴"
-				:players="oMatch.dire_players"
-				:win="!oMatch.radiant_win"
-				:score="oMatch.dire_score"
-				>
-			</d-team>
+	<div class="container">
+		<slide-transition>
+			<router-view></router-view>
+		</slide-transition>
+		<div class="floating-btn" @click="redirectHome">
+			<svg-home></svg-home>
 		</div>
 	</div>
 </template>
-
 <script>
-import Team from 'src/components/team'
-import DateLib from 'src/lib/DateLib'
-import HEROS from 'src/constants/heros'
-import ITEM_MAP from 'src/constants/itemMap'
-import ITEMS from 'src/constants/items'
-// import match from '../.data/matches.json'
-
-const HOST = 'https://api.opendota.com'
-
-function percentify(decimal) {
-	return (decimal * 100).toFixed(1) + '%'
-}
+import svgHome from 'src/component/svg/home'
+import slideTransition from 'src/component/slide-transition'
 
 export default {
-	data() {
-		return {
-			match_id: '',
-			match: null
-		}
-	},
-	computed: {
-		oMatch() {
-			const match = this.match
-			if (match) {
-				match.dist_now = DateLib.getDistanceNow(new Date(match.start_time * 1000))
-				match.duration_hour = Math.round(match.duration / 60) + '分钟'
-				match.players.forEach(v => {
-					v.hero_img = HOST + HEROS[v.hero_id].img
-					v.item_0 = HOST + (ITEMS[ITEM_MAP[v.item_0]] || {}).img
-					v.item_1 = HOST + (ITEMS[ITEM_MAP[v.item_1]] || {}).img
-					v.item_2 = HOST + (ITEMS[ITEM_MAP[v.item_2]] || {}).img
-					v.item_3 = HOST + (ITEMS[ITEM_MAP[v.item_3]] || {}).img
-					v.item_4 = HOST + (ITEMS[ITEM_MAP[v.item_4]] || {}).img
-					v.item_5 = HOST + (ITEMS[ITEM_MAP[v.item_5]] || {}).img
-				})
-
-				match.radiant_players = []
-				match.dire_players = []
-				match.players.forEach(v => {
-					if (v.isRadiant) {
-						v.fight_ratio = percentify((v.assists + v.kills) / match.radiant_score)
-						match.radiant_players.push(v)
-					} else {
-						v.fight_ratio = percentify((v.assists + v.kills) / match.dire_score)
-						match.dire_players.push(v)
-					}
-				})
-				match.radiant_damage = match.radiant_players.reduce((p, v) => p + v.hero_damage, 0)
-				match.dire_damage = match.dire_players.reduce((p, v) => p + v.hero_damage, 0)
-				match.radiant_players.forEach(v => {
-					v.demage_per = percentify(v.hero_damage / match.radiant_damage)
-				})
-				match.dire_players.forEach(v => {
-					v.demage_per = percentify(v.hero_damage / match.dire_damage)
-				})
-			}
-			return match
-		}
-	},
 	methods: {
-		onClick() {
-			fetch(`https://api.opendota.com/api/matches/${this.match_id}`)
-			.then(res => res.json())
-			.then(json => {
-				this.match = json
-			})
+		redirectHome() {
+			this.$router.push('/home')
 		}
 	},
 	components: {
-		'd-team': Team
+		slideTransition,
+		svgHome
+	},
+	created() {
+		this.$store.dispatch('loadLocalData')
 	}
 }
+
 </script>
 
-<style lang="scss">
-
-body {
-	background-color: #eee;
-}
-
-h1 {
-	text-align: center;
-	padding: 10px;
-}
-
-table {
-	width: 100%;
-	text-align: center;
-	margin: 5px 0;
-	background-color: white;
-
-	th {
-		color: #999;
-	}
-
-	tr {
-		line-height: 2;
-	}
-}
-
-.radiant {
-	.d-team-header {
-		border-top-color: #00a854;
-
-		& > .left {
-			background-color: #00a854;
-		}
-	}
-}
-
-.dire {
-	.d-team-header {
-		border-top-color: #b21;
-
-		& > .left {
-			background-color: #b21;
-		}
-	}
+<style lang="scss" scoped>
+.floating-btn {
+    position: absolute;
+    display: flex;
+    bottom: 20px;
+    right: 20px;
+    width: 45px;
+    height: 45px;
+    justify-content: center;
+    background-color: rgba(0,0,0,.65);
+    align-items: center;
+    border-radius: 50%;
 }
 </style>

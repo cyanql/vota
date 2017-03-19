@@ -35,7 +35,9 @@ const config = {
 	resolve: {
 		alias: {
 			src: SRC_PATH,
-			vue: 'vue/dist/vue.js'
+			vue: 'vue/dist/vue.js',
+			vuex: 'vuex/dist/vuex.js',
+			'vue-router': 'vue-router/dist/vue-router.js'
 		},
 		extensions: ['.js', '.vue']
 	},
@@ -116,7 +118,9 @@ if (NODE_ENV === 'production') {
 		})
 	)
 	config.externals = {
-		vue: 'Vue'
+		vue: 'Vue',
+		vuex: 'Vuex',
+		'vue-router': 'VueRouter'
 	}
 }
 

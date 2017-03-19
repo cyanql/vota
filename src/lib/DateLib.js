@@ -43,7 +43,7 @@ DateLib.prototype = {
 	}
 }
 
-DateLib.getDistanceNow = (date) => {
+DateLib.fromNow = function(date) {
 	if (!(date instanceof Date))
 		throw new Error('the first param should be a Date Object')
 
@@ -68,6 +68,24 @@ DateLib.getDistanceNow = (date) => {
 		return `${parseInt(distDay)}天前`
 
 	return date.toJSON().substr(0, 10)
+}
+
+function format(number) {
+	return number < 10 ? '0' + number : number
+}
+
+DateLib.duration = function(seconds) {
+	const minutes = parseInt(seconds / 60)
+	const hours = parseInt(minutes / 60)
+	seconds = seconds - (hours * 60 + minutes) * 60
+
+	const duration = []
+	if (hours) {
+		duration.push(format(hours))
+	}
+	duration.push(format(minutes))
+	duration.push(format(seconds))
+	return duration.join(':')
 }
 
 module.exports = DateLib
