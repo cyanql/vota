@@ -5,6 +5,8 @@ import App from './app'
 import router from './router'
 import store from './vuex'
 
+require('fastclick').attach(document.body)
+
 new Vue({
 	el: '#app',
 	store,

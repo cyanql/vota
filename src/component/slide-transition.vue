@@ -1,32 +1,50 @@
 <template>
-	<transition name="slide">
+	<transition :name="name">
 		<slot></slot>
 	</transition>
 </template>
 
+<script>
+export default {
+	props: {
+		direction: {
+			type: String,
+			default: 'left'
+		}
+	},
+	computed: {
+		name() {
+			return 'slide-' + this.direction
+		}
+	}
+}
+</script>
+
 <style lang="scss">
 
 .slide {
-	&-enter-active,
-	&-leave-active, {
+	&-left-enter-active,
+	&-left-leave-active,
+	&-right-enter-active,
+	&-right-leave-active, {
 		transition-property: opacity, transform;
-		transition-duration: .3s;
+		transition-duration: .5s;
 		transition-timing-function: cubic-bezier(.55,0,.1,1);
+		animation-fill-mode: both;
+		backface-visibility: hidden;
+  		will-change: transform;
 	}
 
-	&-enter-active {
-		transition-delay: .25s;
-	}
-
-	&-enter {
+	&-left-enter,
+	&-right-leave-active {
 		opacity: 0;
-		transform: translate(0, 100px);
+		transform: translate(100%, 0);
 	}
 
-	&-leave-active {
+	&-right-enter,
+	&-left-leave-active {
 		opacity: 0;
-		transform: translate(0, 100px);
+		transform: translate(-100%, 0);
 	}
 }
-
 </style>
