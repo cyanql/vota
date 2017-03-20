@@ -1,6 +1,6 @@
 <template>
-	<div class="box-view">
-		<div class="scroll-view">
+	<div>
+		<div>
 			<div class="match-row" v-for="match in matches" @click="getMatchFetch(match.match_id)">
 				<span class="win" v-if="match.win">胜利</span>
 				<span class="lose" v-else>失败</span>

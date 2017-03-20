@@ -45,7 +45,14 @@ export function getMatchesFetch({commit, state}, user) {
 	.then(matches => {
 		commit(types.GET_MATCHES_FETCH_SUCCESS, handleMatches(matches))
 		router.push('/userinfo')
-		localData.update('users', users => users ? users.every(v => v.account_id !== user.account_id) ? users.push(user) : users : [user])
+		localData.update('users', users => {
+			if (users) {
+				users.every(v => v.account_id !== user.account_id) && users.push(user)
+				return users
+			} else {
+				return [user]
+			}
+		})
 	})
 }
 

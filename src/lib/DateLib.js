@@ -74,12 +74,14 @@ function format(number) {
 	return number < 10 ? '0' + number : number
 }
 
-DateLib.duration = function(seconds) {
-	const minutes = parseInt(seconds / 60)
-	const hours = parseInt(minutes / 60)
+DateLib.duration = function test(seconds) {
+	let hours, minutes, duration
+	minutes = parseInt(seconds / 60)
+	hours = parseInt(minutes / 60)
+	minutes = minutes - hours * 60
 	seconds = seconds - (hours * 60 + minutes) * 60
-
-	const duration = []
+	duration = []
+	
 	if (hours) {
 		duration.push(format(hours))
 	}
