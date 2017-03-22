@@ -169,6 +169,7 @@ function getLogs(match) {
 				type: 'purchase',
 				item_img: API.IMG_HOST + ITEMS[w.key].img,
 				time: w.time,
+				cost: ITEMS[w.key].cost,
 				hero_img,
 				isRadiant
 			})
