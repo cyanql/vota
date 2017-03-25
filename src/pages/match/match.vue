@@ -13,7 +13,8 @@ import slideTransition from 'src/component/slide-transition'
 
 const PAGE_INDEX = {
 	summary: 1,
-	log: 2
+	detail: 2,
+	log: 3
 }
 
 export default {
@@ -21,12 +22,12 @@ export default {
 		return {
 			links: [{
 				name: 'summary',
-				title: '比赛概况'
+				title: '概况'
+			}, {
+				name: 'detail',
+				title: '数据'
 			},
-			//  {
-			// 	name: 'detail',
-			// 	title: '数据详情'
-			// }, {
+			// {
 			// 	name: 'trend',
 			// 	title: '趋势'
 			// },

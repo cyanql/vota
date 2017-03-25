@@ -8,7 +8,7 @@
 			<div class="left">
 				<p class="username">{{player.personaname || '佚名'}}</p>
 				<p>参战率：{{player.fight_ratio}}</p>
-				<p>伤害：{{player.demage_per}}</p>
+				<p>伤害：{{player.damage_percent}}</p>
 			</div>
 			<div class="right">
 				<p>{{[player.kills, player.deaths, player.assists].join('/')}}</p>

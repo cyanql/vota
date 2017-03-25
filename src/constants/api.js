@@ -10,6 +10,7 @@ const API = {
 	HOST,
 	BASE,
 	IMG_HOST,
+	MAP: 'https://www.opendota.com/assets/images/dota2/map/detailed_700.png',
 	matches: `${API_BASE}/matches/{match_id}`,
 	players: {
 		_: `${API_BASE}/players/{account_id}`,

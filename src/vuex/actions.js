@@ -2,7 +2,7 @@ import * as types from './types'
 import router from 'src/router'
 import DateLib from 'src/lib/DateLib'
 import { API, ITEM_MAP, HERO_MAP, HEROS, ITEMS, RUNE_MAP } from 'src/constants'
-import { percentify, polling, localData } from 'src/util'
+import { percentify, polling, localData, parsePositions } from 'src/util'
 
 // 装载本地数据
 export function loadLocalData({commit}) {
@@ -131,13 +131,13 @@ function handleMatch(match) {
 			match.dire_players.push(v)
 		}
 	})
-	match.radiant_damage = match.radiant_players.reduce((p, v) => p + v.hero_damage, 0)
-	match.dire_damage = match.dire_players.reduce((p, v) => p + v.hero_damage, 0)
+	match.radiant_damage = match.radiant_players.reduce((p, v) => p + v.hero_damage)
+	match.dire_damage = match.dire_players.reduce((p, v) => p + v.hero_damage)
 	match.radiant_players.forEach(v => {
-		v.demage_per = percentify(v.hero_damage / match.radiant_damage)
+		v.damage_percent = percentify(v.hero_damage / match.radiant_damage)
 	})
 	match.dire_players.forEach(v => {
-		v.demage_per = percentify(v.hero_damage / match.dire_damage)
+		v.damage_percent = percentify(v.hero_damage / match.dire_damage)
 	})
 	return match
 }
@@ -151,9 +151,13 @@ function getLogs(match) {
 	// })
 	match.players.forEach(v => {
 		const hero_img = API.HOST + HERO_MAP[v.hero_id].img
+		const hero_icon = API.HOST + HERO_MAP[v.hero_id].icon
 		const isRadiant = v.isRadiant
 
-		player_imgs.push(hero_img)
+		player_imgs.push({
+			hero_img,
+			hero_icon
+		})
 
 		v.kills_log.forEach(w => {
 			logs.push({
@@ -186,10 +190,13 @@ function getLogs(match) {
 	})
 	match.teamfights.forEach(v => {
 		let total_damage = 0, players
+
 		players = v.players.map((w, index) => {
-			w.hero_img = player_imgs[index]
+			w.hero_img = player_imgs[index].hero_img
+			w.hero_icon = player_imgs[index].hero_icon
 			return w
 		})
+
 		players = players.map(v => {
 			v.class = {
 				death: !!v.deaths
@@ -211,10 +218,13 @@ function getLogs(match) {
 			total_damage += v.damage
 			return v
 		})
+
 		players = players.map(v => {
 			v.damage_percent = (v.damage / total_damage * 100) + '%'
+			v.positions = parsePositions(v.deaths_pos)
 			return v
 		})
+
 		logs.push({
 			type: 'teamfight',
 			start: DateLib.duration(v.start),
@@ -222,6 +232,8 @@ function getLogs(match) {
 			time: v.start,
 			radiant_players: players.slice(0, 5),
 			dire_players: players.slice(5),
+			players: players,
+			map_img: API.MAP
 		})
 	})
 	logs = logs
