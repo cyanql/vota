@@ -1,18 +1,18 @@
 <template>
 	<div>
 		<div class="log-row">
-			<figure class="hero" :style="`background-image: url(${log.hero_img})`"></figure>
+			<figure class="avator hero" :style="`background-image: url(${log.hero_img})`"></figure>
 			<template v-if="log.type === 'kill'">
 				<svg-machete></svg-machete>
-				<figure class="hero" :style="`background-image: url(${log.kills_hero_img})`"></figure>
+				<figure class="avator hero" :style="`background-image: url(${log.kills_hero_img})`"></figure>
 			</template>
 			<template v-if="log.type === 'purchase'">
 				<svg-cash></svg-cash>
-				<figure class="item" :style="`background-image: url(${log.item_img})`"></figure>
+				<figure class="avator item" :style="`background-image: url(${log.item_img})`"></figure>
 			</template>
 			<template v-if="log.type === 'rune'">
 				<svg-robber></svg-robber>
-				<figure class="rune" :style="`background-image: url(${log.rune_img})`"></figure>
+				<figure class="avator rune" :style="`background-image: url(${log.rune_img})`"></figure>
 			</template>
 		</div>
 		<span class="log-info">{{log.time}}</span>

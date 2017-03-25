@@ -119,7 +119,7 @@ export default {
 			justify-content: flex-end;
 		}
 
-		figure {
+		figure.avator {
 			width: 30px;
 			height: 25px;
 			line-height: 25px;

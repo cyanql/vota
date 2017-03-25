@@ -2,10 +2,10 @@
 	<div class="log-teamfight">
 		<div class="log-players" @click="onClick">
 			<div class="team">
-				<figure v-for="player in log.radiant_players" class="hero" :class="player.class" v-if="player.damage" :style="`background-image: url(${player.hero_img})`"></figure>
+				<figure v-for="player in log.radiant_players" class="hero avator" :class="player.class" v-if="player.damage" :style="`background-image: url(${player.hero_img})`"></figure>
 			</div>
 			<div class="team">
-				<figure v-for="player in log.dire_players" class="hero" :class="player.class" v-if="player.damage" :style="`background-image: url(${player.hero_img})`"></figure>
+				<figure v-for="player in log.dire_players" class="hero avator" :class="player.class" v-if="player.damage" :style="`background-image: url(${player.hero_img})`"></figure>
 			</div>
 			<div class="log-info">
 				<p>{{log.start}} - {{log.end}}</p>
@@ -15,26 +15,43 @@
 		</div>
 		<expand-transition>
 			<div class="log-detail" v-show="detailVisible">
-				<div class="team">
-					<div v-for="player in log.radiant_players" v-if="player.damage">
-						<p>{{player.deaths}}</p>
-						<div class="bar-chart">
-							<span>{{player.damage}}</span>
-							<div class="inner" :style="`height: ${player.damage_percent}`"></div>
+				<div class="log-detail-data">
+					<div class="team">
+						<div v-for="player in log.radiant_players" v-if="player.damage">
+							<p>{{player.deaths}}</p>
+							<div class="bar-chart">
+								<span>{{player.damage}}</span>
+								<div class="inner" :style="`height: ${player.damage_percent}`"></div>
+							</div>
+							<figure class="avator" v-for="ability in player.abilitys" :style="`background-image: url(${ability.img})`">{{ability.times}}</figure>
+							<figure class="avator" v-for="item in player.items" :style="`background-image: url(${item.img})`">{{item.times}}</figure>
 						</div>
-						<figure v-for="ability in player.abilitys" :style="`background-image: url(${ability.img})`">{{ability.times}}</figure>
-						<figure v-for="item in player.items" :style="`background-image: url(${item.img})`">{{item.times}}</figure>
+					</div>
+					<div class="team">
+						<div v-for="player in log.dire_players" v-if="player.damage">
+							<p>{{player.deaths}}</p>
+							<div class="bar-chart">
+								<span>{{player.damage}}</span>
+								<div class="inner" :style="`height: ${player.damage_percent}`"></div>
+							</div>
+							<figure v-for="ability in player.abilitys" :style="`background-image: url(${ability.img})`">{{ability.times}}</figure>
+							<figure v-for="item in player.items" :style="`background-image: url(${item.img})`">{{item.times}}</figure>
+						</div>
 					</div>
 				</div>
-				<div class="team">
-					<div v-for="player in log.dire_players" v-if="player.damage">
-						<p>{{player.deaths}}</p>
-						<div class="bar-chart">
-							<span>{{player.damage}}</span>
-							<div class="inner" :style="`height: ${player.damage_percent}`"></div>
-						</div>
-						<figure v-for="ability in player.abilitys" :style="`background-image: url(${ability.img})`">{{ability.times}}</figure>
-						<figure v-for="item in player.items" :style="`background-image: url(${item.img})`">{{item.times}}</figure>
+				<div class="log-detail-summary">
+					<span class="title">死亡地点</span>
+					<div class="toolbar">
+						<span @click="decreaseImageScale()">-</span>
+						<span @click="increaseImageScale()">+</span>
+					</div>
+					<div class="zoom-box" :style="`height: ${imageHeight}`">
+						<figure :style="`width: ${imageScale}00%`">
+							<img :src="log.map_img" alt="">
+							<template v-for="player in log.players">
+								<figure class="log-detail-death-pos" v-for="position in player.positions" :style="`left: ${position.x}%; top: ${position.y}%; background-image: url(${player.hero_icon})`"></figure>
+							</template>
+						</figure>
 					</div>
 				</div>
 			</div>
@@ -52,12 +69,20 @@ export default {
 	props: ['log'],
 	data() {
 		return {
-			detailVisible: false
+			detailVisible: false,
+			imageScale: 1,
+			imageHeight: document.body.offsetWidth + 'px',
 		}
 	},
 	methods: {
 		onClick() {
 			this.detailVisible = !this.detailVisible
+		},
+		decreaseImageScale() {
+			this.imageScale = this.imageScale === 1 ? this.imageScale : this.imageScale - 1
+		},
+		increaseImageScale() {
+			this.imageScale = this.imageScale === 3 ? this.imageScale : this.imageScale + 1
 		}
 	},
 	components: {
@@ -94,35 +119,88 @@ export default {
 	}
 
 	&-detail {
-		display: flex;
-		color: #fff;
-		justify-content: space-between;
-		overflow: hidden;
-
-		.team {
+		&-data {
 			display: flex;
-			text-align: center;
-		}
+			color: #fff;
+			justify-content: space-between;
+			overflow: hidden;
 
-		.bar-chart {
-			position: relative;
-			width: 30px;
-			height: 30px;
-			background-color: #222;
-			font-size: 10px;
-			margin-bottom: 5px;
+			.team {
+				display: flex;
+				text-align: center;
+			}
 
-			.inner {
-				width: 100%;
-				position: absolute;
-				bottom: 0;
-				background-color: #f00;
+			.bar-chart {
+				position: relative;
+				width: 30px;
+				height: 30px;
+				background-color: #222;
+				font-size: 10px;
+				margin-bottom: 5px;
+
+				.inner {
+					width: 100%;
+					position: absolute;
+					bottom: 0;
+					background-color: #f00;
+				}
+			}
+
+			figure {
+				// margin: 2px;
+				border-radius: 0;
 			}
 		}
 
-		figure {
-			// margin: 2px;
-			border-radius: 0;
+		&-summary {
+			position: relative;
+			color: white;
+			overflow: scroll;
+
+			.title {
+				position: absolute;
+				left: 0;
+				z-index: 1;
+				line-height: 30px;
+				padding-left: 10px;
+			}
+			.toolbar {
+				position: absolute;
+				right: 0;
+				z-index: 1;
+
+				& > span {
+					display: inline-block;
+					width: 30px;
+					line-height: 30px;
+					text-align: center;
+					font-size: 20px;
+					font-weight: 500;
+				}
+			}
+
+			.zoom-box {
+			 	overflow: scroll;
+
+				& > figure {
+	   				position: relative;
+	   				background-size: cover;
+
+	   				& > img {
+	   					width: 100%;
+	   					vertical-align: bottom;
+	   				}
+
+	   				& > figure.log-detail-death-pos {
+	   					position: absolute;
+	   					width: 30px;
+	   					height: 30px;
+	   					background-position: center;
+	       				background-size: cover;
+	   					transform: translate(-50%, -50%);
+	   				}
+	   			}
+			 }
 		}
 	}
 
