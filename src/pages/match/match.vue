@@ -43,7 +43,6 @@ export default {
 			const toArr = to.path.split('/')
 			const fromArr = from.path.split('/')
 			if (toArr.length === fromArr.length) {
-				console.log(this.transitionDirection)
 				this.transitionDirection = PAGE_INDEX[toArr.pop()] < PAGE_INDEX[fromArr.pop()] ? 'right' : 'left'
 			} else {
 				this.transitionDirection = toArr.length < fromArr.length ? 'right' : 'left'

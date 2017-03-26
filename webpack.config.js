@@ -103,6 +103,7 @@ for (const name of Object.keys(config.entry)) {
 if (NODE_ENV === 'development') {
 	config.watch = true
 	config.plugins.unshift(new webpack.HotModuleReplacementPlugin())
+	config.devtool = 'inline-source-map'//'cheap-module-eval-source-map'
 }
 
 if (NODE_ENV === 'production') {

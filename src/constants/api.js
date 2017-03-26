@@ -47,10 +47,11 @@ const API = {
 	leagues: `${API_BASE}/leagues`,
 	teams: `${API_BASE}/teams`,
 	replays: `${API_BASE}/replays`,
-	fetch(url, { param, query, method = 'get' }) {
+	async fetch(url, { param, query, method = 'get' }) {
 		url = param ? url.replace(/{[\w_]+}/, param) : url
 		url = query ? url + '?' + serialize(query) : url
-		return fetch(url, {method})
+		const res = await fetch(url, {method})
+		return await res.json()
 	}
 }
 
