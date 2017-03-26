@@ -67,24 +67,4 @@ table {
 		line-height: 2;
 	}
 }
-
-.radiant {
-	.d-team-header {
-		border-top-color: #00a854;
-
-		& > .left {
-			background-color: #00a854;
-		}
-	}
-}
-
-.dire {
-	.d-team-header {
-		border-top-color: #b21;
-
-		& > .left {
-			background-color: #b21;
-		}
-	}
-}
 </style>

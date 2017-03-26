@@ -35,11 +35,15 @@ export default {
 	}),
 	methods: {
 		...mapActions([
+			'auth',
 			'changeUserName',
 			'getUsersFetch',
 			'getMatchesFetch',
 			'removeLocalData'
 		])
+	},
+	created() {
+		this.auth()
 	}
 }
 </script>

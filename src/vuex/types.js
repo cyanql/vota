@@ -1,4 +1,5 @@
 // status
+export const AUTH = 'AUTH'
 export const CHANGE_USER_NAME = 'CHANGE_USER_NAME'
 export const SELECT_USER = 'SELECT_USER'
 export const LOAD_LOCALSTORAGE = 'LOAD_LOCALSTORAGE'

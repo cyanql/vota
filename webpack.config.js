@@ -85,7 +85,7 @@ const config = {
 for (const name of Object.keys(config.entry)) {
 	if (name !== 'lib') {
 		config.plugins.push(new HtmlWebpackPlugin({ //根据模板插入css/js等生成最终HTML
-			// favicon: './src/img/favicon.ico', //favicon路径，通过webpack引入同时可以生成hash值
+			favicon: path.resolve(SRC_PATH, 'favicon.ico'), //favicon路径，通过webpack引入同时可以生成hash值
 			title: name,
 			chunks: [name, 'lib'], //需要引入的chunk，不配置就会引入所有页面的资源
 			template: path.resolve(SRC_PATH, 'template.html'),

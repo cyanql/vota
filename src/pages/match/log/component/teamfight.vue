@@ -2,10 +2,10 @@
 	<div class="log-teamfight">
 		<div class="log-players" @click="onClick">
 			<div class="team">
-				<figure v-for="player in log.radiant_players" class="hero avator" :class="player.class" v-if="player.damage" :style="`background-image: url(${player.hero_img})`"></figure>
+				<figure v-for="player in log.radiant_players" class="hero square" :class="player.class" v-if="player.damage" :style="`background-image: url(${player.hero_img})`"></figure>
 			</div>
 			<div class="team">
-				<figure v-for="player in log.dire_players" class="hero avator" :class="player.class" v-if="player.damage" :style="`background-image: url(${player.hero_img})`"></figure>
+				<figure v-for="player in log.dire_players" class="hero square" :class="player.class" v-if="player.damage" :style="`background-image: url(${player.hero_img})`"></figure>
 			</div>
 			<div class="log-info">
 				<p>{{log.start}} - {{log.end}}</p>
@@ -18,24 +18,48 @@
 				<div class="log-detail-data">
 					<div class="team">
 						<div v-for="player in log.radiant_players" v-if="player.damage">
-							<p>{{player.deaths}}</p>
-							<div class="bar-chart">
+							<div class="xp-chart">
+								<span>{{player.xp_delta}}</span>
+								<div class="inner" :style="`height: ${player.xp_percent}`"></div>
+							</div>
+							<div class="gold-chart">
+								<span>{{player.gold_delta}}</span>
+								<div class="inner" :class="player.gold_delta < 0 && 'negative'" :style="`height: ${player.gold_percent};`"></div>
+							</div>
+							<div class="damage-chart">
 								<span>{{player.damage}}</span>
 								<div class="inner" :style="`height: ${player.damage_percent}`"></div>
 							</div>
-							<figure class="avator" v-for="ability in player.abilitys" :style="`background-image: url(${ability.img})`">{{ability.times}}</figure>
-							<figure class="avator" v-for="item in player.items" :style="`background-image: url(${item.img})`">{{item.times}}</figure>
+							<figure class="rectangle" v-for="ability in player.abilitys" :style="`background-image: url(${ability.img})`">{{ability.times}}</figure>
+							<hr class="placeholder">
+							<figure class="rectangle" v-for="item in player.items" :style="`background-image: url(${item.img})`">{{item.times}}</figure>
 						</div>
+					</div>
+					<div class="title">
+						<p class="chart-title">经验</p>
+						<p class="chart-title">金币</p>
+						<p class="chart-title">伤害</p>
+						<p>技能</p>
+						<hr class="placeholder">
+						<p>装备</p>
 					</div>
 					<div class="team">
 						<div v-for="player in log.dire_players" v-if="player.damage">
-							<p>{{player.deaths}}</p>
-							<div class="bar-chart">
+							<div class="xp-chart">
+								<span>{{player.xp_delta}}</span>
+								<div class="inner" :style="`height: ${player.xp_percent}`"></div>
+							</div>
+							<div class="gold-chart">
+								<span>{{player.gold_delta}}</span>
+								<div class="inner" :style="`height: ${player.gold_percent}`"></div>
+							</div>
+							<div class="damage-chart">
 								<span>{{player.damage}}</span>
 								<div class="inner" :style="`height: ${player.damage_percent}`"></div>
 							</div>
-							<figure v-for="ability in player.abilitys" :style="`background-image: url(${ability.img})`">{{ability.times}}</figure>
-							<figure v-for="item in player.items" :style="`background-image: url(${item.img})`">{{item.times}}</figure>
+							<figure class="rectangle" v-for="ability in player.abilitys" :style="`background-image: url(${ability.img})`">{{ability.times}}</figure>
+							<hr class="placeholder">
+							<figure class="rectangle" v-for="item in player.items" :style="`background-image: url(${item.img})`">{{item.times}}</figure>
 						</div>
 					</div>
 				</div>
@@ -120,34 +144,69 @@ export default {
 
 	&-detail {
 		&-data {
+			position: relative;
 			display: flex;
 			color: #fff;
-			justify-content: space-between;
 			overflow: hidden;
+			justify-content: space-between;
 
 			.team {
 				display: flex;
 				text-align: center;
-			}
 
-			.bar-chart {
-				position: relative;
-				width: 30px;
-				height: 30px;
-				background-color: #222;
-				font-size: 10px;
-				margin-bottom: 5px;
+				& > div {
+					display: flex;
+					flex-direction: column;
 
-				.inner {
-					width: 100%;
-					position: absolute;
-					bottom: 0;
-					background-color: #f00;
+					.gold-chart,
+					.xp-chart,
+					.damage-chart {
+						position: relative;
+						width: 30px;
+						height: 30px;
+						background-color: #222;
+						font-size: 10px;
+						margin-bottom: 5px;
+
+						.inner {
+							width: 100%;
+							position: absolute;
+							bottom: 0;
+							background-color: #f00;
+
+							&.negative {
+								background-color: #00f;
+							}
+						}
+					}
 				}
 			}
 
+			.title {
+				position: absolute;
+				top: 50%;
+				left: 50%;
+				transform: translate(-50%, -50%);
+				color: #fff;
+				font-size: 10px;
+				height: 100%;
+				display: flex;
+				flex-direction: column;
+				text-align: center;
+
+				& > .chart-title {
+					min-height: 30px;
+					margin-bottom: 5px;
+				}
+			}
+
+			hr.placeholder {
+				border: none;
+				flex: 1;
+				min-height: 30px;
+			}
+
 			figure {
-				// margin: 2px;
 				border-radius: 0;
 			}
 		}
