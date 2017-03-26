@@ -35,72 +35,82 @@ export function changeUserName({commit}, val) {
 }
 
 // users
-export function getUsersFetch({commit}, name) {
-	API.fetch(API.search, {query: {q: name}})
-	.then(res => res.json())
-	.then(users => {
-		commit(types.GET_USERS_FETCH_SUCCESS, users)
-	})
+export async function getUsersFetch({commit}, name) {
+	const users = await API.fetch(API.search, {query: {q: name}})
+	commit(types.GET_USERS_FETCH_SUCCESS, users)
 }
 
 // match
-export function getMatchesFetch({commit, state}, user) {
+export async function getMatchesFetch({commit, state}, user) {
 	// const userid = state.users[state.status.selectUserIndex].account_id
-	API.fetch(API.players.matches, {param: user.account_id})
-	.then(res => res.json())
-	.then(matches => {
-		commit(types.GET_MATCHES_FETCH_SUCCESS, handleMatches(matches))
-		router.push('/userinfo')
-		localData.update('users', users => {
-			if (users) {
-				users.every(v => v.account_id !== user.account_id) && users.push(user)
-				return users
-			} else {
-				return [user]
-			}
-		})
+	const matches = await API.fetch(API.players.matches, {param: user.account_id})
+	commit(types.GET_MATCHES_FETCH_SUCCESS, handleMatches(matches))
+	router.push('/userinfo')
+	localData.update('users', users => {
+		if (users) {
+			users.every(v => v.account_id !== user.account_id) && users.push(user)
+			return users
+		} else {
+			return [user]
+		}
 	})
 }
 
-export function getMatchFetch({commit, dispatch}, matchid) {
-	API.fetch(API.matches, {param: matchid})
-	.then(res => res.json())
-	.then(match => {
-		try {
-			match.logs = getLogs(match)
-		} catch(e) {
-			const result = window.confirm('尚无完整比赛信息，是否解析？\n（过程需要几分钟，请耐心等候...）')
-			if (result) {
-				return API.fetch(API.request.job, {param: matchid, method: 'post'})
-					.then(res => res.json())
-					.then(json => {
-						if (json.state === 'failed') {
-							return alert('解析失败')
-						}
-						polling((done) => {
-							API.fetch(API.request.match, {param: json.job.jobId})
-								.then(res => res.json())
-								.then(json => {
-									if (json.state === 'active') {
-										console.log(json.progress)
-									} else if (json.state === 'completed') {
-										dispatch('getMatchFetch', matchid)
-										done()
-									} else {
-										alert('解析失败')
-										done()
-									}
-								})
-						}, 3000)
-					})
-			} else {
-				match.logs = []
-			}
+export async function getMatchFetch({commit, dispatch}, matchid) {
+	const matchDetails = localData.get('matchDetails')
+	let match, logs
+
+	if (matchDetails) {
+		match = matchDetails[matchid]
+	}
+
+	if (!match) {
+		match = await API.fetch(API.matches, {param: matchid})
+	}
+
+	try {
+		logs = getLogs(match)
+		// isDetail
+		if (logs) {
+			localData.update('matchDetails', (v) => {
+				v = v || {}
+				v[matchid] = match
+				return v
+			})
 		}
-		match = handleMatch(match)
-		commit(types.GET_MATCH_FETCH_SUCCESS, match)
-		router.push('/match/summary')
-	})
+		match.logs = logs
+	} catch(e) {
+		const result = window.confirm('尚无完整比赛信息，是否解析？\n（过程需要几分钟，请耐心等候...）')
+		if (result) {
+			return dispatch('getMatchDetailFetch', matchid)
+		} else {
+			match.logs = []
+		}
+	}
+	match = handleMatch(match)
+	commit(types.GET_MATCH_FETCH_SUCCESS, match)
+	router.push('/match/summary')
+}
+
+export async function getMatchDetailFetch({dispatch}, matchid) {
+	let json = API.fetch(API.request.job, {param: matchid, method: 'post'})
+
+	if (json.state === 'failed') {
+		return alert('解析失败')
+	}
+
+	polling(async (done) => {
+		json = await API.fetch(API.request.match, {param: json.job.jobId})
+		if (json.state === 'active') {
+			console.log(json.progress)
+		} else if (json.state === 'completed') {
+			done()
+			dispatch('getMatchFetch', matchid)
+		} else {
+			done()
+			alert('解析失败')
+		}
+	}, 3000)
 }
 
 // handlers
