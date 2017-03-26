@@ -29,10 +29,30 @@ export default {
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .d-team {
 	margin: 10px 0;
 	background-color: white;
+
+	&.radiant {
+		.d-team-header {
+			border-top-color: #00a854;
+
+			& > .left {
+				background-color: #00a854;
+			}
+		}
+	}
+
+	&.dire {
+		.d-team-header {
+			border-top-color: #b21;
+
+			& > .left {
+				background-color: #b21;
+			}
+		}
+	}
 
 	&-header {
 		display: flex;

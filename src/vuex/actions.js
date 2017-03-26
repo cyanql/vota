@@ -4,9 +4,15 @@ import DateLib from 'src/lib/DateLib'
 import { API, ITEM_MAP, HERO_MAP, HEROS, ITEMS, RUNE_MAP } from 'src/constants'
 import { percentify, polling, localData, parsePositions } from 'src/util'
 
+
+export function auth({commit}) {
+	commit(types.AUTH)
+}
+
+
 // 装载本地数据
-export function loadLocalData({commit}) {
-	if (process.env.NODE_ENV === 'development') {
+export function loadLocalData({commit, state}) {
+	if (state.status.dev) {
 		commit(types.GET_USERS_FETCH_SUCCESS, require('src/../.data/players.json'))
 		commit(types.GET_MATCHES_FETCH_SUCCESS, handleMatches(require('src/../.data/matches.json')))
 		const match = require('src/../.data/match.detail.json')
@@ -63,7 +69,7 @@ export function getMatchFetch({commit, dispatch}, matchid) {
 		try {
 			match.logs = getLogs(match)
 		} catch(e) {
-			const result = window.confirm('尚无完整比赛信息，是否解析？')
+			const result = window.confirm('尚无完整比赛信息，是否解析？\n（过程需要几分钟，请耐心等候...）')
 			if (result) {
 				return API.fetch(API.request.job, {param: matchid, method: 'post'})
 					.then(res => res.json())
@@ -103,6 +109,7 @@ function handleMatches(matches) {
 		match.hero_img = API.IMG_HOST + HERO_MAP[match.hero_id].img
 		match.win = match.player_slot < 5 ? match.radiant_win : !match.radiant_win
 		match.from_now = DateLib.fromNow(new Date(match.start_time * 1000))
+		match.parsed = !!match.version
 		return match
 	})
 }
@@ -131,8 +138,8 @@ function handleMatch(match) {
 			match.dire_players.push(v)
 		}
 	})
-	match.radiant_damage = match.radiant_players.reduce((p, v) => p + v.hero_damage)
-	match.dire_damage = match.dire_players.reduce((p, v) => p + v.hero_damage)
+	match.radiant_damage = match.radiant_players.reduce((p, v) => p + v.hero_damage, 0)
+	match.dire_damage = match.dire_players.reduce((p, v) => p + v.hero_damage, 0)
 	match.radiant_players.forEach(v => {
 		v.damage_percent = percentify(v.hero_damage / match.radiant_damage)
 	})
@@ -189,7 +196,10 @@ function getLogs(match) {
 		})
 	})
 	match.teamfights.forEach(v => {
-		let total_damage = 0, players
+		let total_damage = 0
+		,	total_gold = 0
+		,	total_xp = 0
+		,	players
 
 		players = v.players.map((w, index) => {
 			w.hero_img = player_imgs[index].hero_img
@@ -216,11 +226,15 @@ function getLogs(match) {
 				}
 			})
 			total_damage += v.damage
+			total_xp += v.xp_delta
+			total_gold += Math.abs(v.gold_delta)
 			return v
 		})
 
 		players = players.map(v => {
-			v.damage_percent = (v.damage / total_damage * 100) + '%'
+			v.damage_percent = percentify(v.damage / total_damage)
+			v.xp_percent = percentify(v.xp_delta / total_xp)
+			v.gold_percent = percentify(Math.abs(v.gold_delta / total_gold))
 			v.positions = parsePositions(v.deaths_pos)
 			return v
 		})

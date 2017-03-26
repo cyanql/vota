@@ -2,6 +2,8 @@ import * as types from './types'
 
 const initialState = {
 	status: {
+		dev: process.env.NODE_ENV === 'development',
+		auth: false,
 		username: '',
 		history: {
 			users: []
@@ -13,6 +15,9 @@ const initialState = {
 }
 
 const statusMutations = {
+	[types.AUTH] (state) {
+		state.status.auth = true
+	},
 	[types.LOAD_LOCALSTORAGE] (state, history) {
 		state.status.history.users = history.users
 	},

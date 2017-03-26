@@ -119,27 +119,38 @@ export default {
 			justify-content: flex-end;
 		}
 
-		figure.avator {
-			width: 30px;
-			height: 25px;
-			line-height: 25px;
-			border-radius: 3px;
-			vertical-align: bottom;
-	    	background-size: cover;
-			background-position: center;
-			background-repeat: no-repeat;
-			text-shadow: 0 0 1px black;
-			color: #ddd;
-			font-size: 10px;
-
-			&.rune,
-			&.hero {
+		figure {
+			&.square {
 				width: 30px;
 				height: 30px;
 			}
 
-			&.hero {
-				border-radius: 50%;
+			&.rectangle {
+				width: 30px;
+				height: 25px;
+			}
+
+			&.square,
+			&.rectangle {
+				line-height: 25px;
+				border-radius: 3px;
+				vertical-align: bottom;
+		    	background-size: cover;
+				background-position: center;
+				background-repeat: no-repeat;
+				text-shadow: 0 0 1px black;
+				color: #ddd;
+				font-size: 10px;
+
+				&.rune,
+				&.hero {
+					width: 30px;
+					height: 30px;
+				}
+
+				&.hero {
+					border-radius: 50%;
+				}
 			}
 		}
 	}
