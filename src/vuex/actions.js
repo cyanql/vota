@@ -35,9 +35,14 @@ export function changeUserName({commit}, val) {
 }
 
 // users
-export async function getUsersFetch({commit}, name) {
-	const users = await API.fetch(API.search, {query: {q: name}})
-	commit(types.GET_USERS_FETCH_SUCCESS, users)
+export async function getUsersFetch({commit, dispatch}, name) {
+	if (/\d+/.test(name)) {
+		const user = await API.fetch(API.players._, {param: name})
+		dispatch('getMatchesFetch', user.profile)
+	} else {
+		const users = await API.fetch(API.search, {query: {q: name}})
+		commit(types.GET_USERS_FETCH_SUCCESS, users)
+	}
 }
 
 // match
@@ -204,6 +209,7 @@ function getLogs(match) {
 				isRadiant
 			})
 		})
+		v.lane_positions = parsePositions(v.lane_pos)
 	})
 	match.teamfights.forEach(v => {
 		let total_damage = 0

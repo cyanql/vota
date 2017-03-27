@@ -87,8 +87,6 @@
 import ITEMS from 'src/constants/items'
 import ExpandTransition from 'src/component/expand-transition'
 
-const HOST = 'http://cdn.dota2.com'
-
 export default {
 	props: ['log'],
 	data() {

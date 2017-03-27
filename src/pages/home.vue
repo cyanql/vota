@@ -1,6 +1,7 @@
 <template>
 	<div class="box-view">
-		<h1>玩家昵称：<input :value="username" @input="changeUserName($event.target.value)"><button @click="getUsersFetch(username)">确认</button></h1>
+		<h1>玩家昵称 或 id：<input :value="username" @input="changeUserName($event.target.value)"><button @click="getUsersFetch(username)">确认</button></h1>
+		<p class="secondary">注：纯数字昵称将被视为id</p>
 		<div class="scroll-view">
 			<div class="player-row" v-for="user in users" @click="getMatchesFetch(user)">
 				<img class="avatar" :src="user.avatarfull" alt="avatar">
@@ -52,6 +53,12 @@ export default {
 h1 {
 	text-align: center;
 	padding: 10px;
+}
+
+.secondary {
+	text-align: center;
+	font-size: 10px;
+	color: #888;
 }
 
 .history {
