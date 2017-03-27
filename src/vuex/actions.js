@@ -209,6 +209,7 @@ function getLogs(match) {
 				isRadiant
 			})
 		})
+		v.lane_positions = parsePositions(v.lane_pos)
 	})
 	match.teamfights.forEach(v => {
 		let total_damage = 0
