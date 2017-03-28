@@ -6,6 +6,10 @@
 		<div class="heros">
 			<img v-for="(player, index) in match.players" :class="heroIndex === index && 'selected'" :src="player.hero_img" @click="updateHeatMap(index)"></img>
 		</div>
+		<div class="vision-map">
+			<img :src="MAP_IMG" alt="">
+			<div class="vision" v-for="vision in visions" :class="[vision.isRadiant ? 'radiant' : 'dire', vision.type]" :style="`left: ${vision.x}; top: ${vision.y}; width: ${vision.width}px; height: ${vision.width}px`"></div>
+		</div>
 	</div>
 </template>
 
@@ -25,7 +29,18 @@ export default {
 		}
 	},
 	computed: mapState({
-		match: state => state.match
+		match: state => state.match,
+		visions(state) {
+			const senWidth = document.body.offsetWidth / 12
+			const obsWidth = senWidth * 1600 / 850
+			const scale = document.body.offsetWidth / 128
+			return state.match.visions.map(v => {
+				v.x = (v.x - 64) * scale - 25 + 'px'// + '%'
+				v.y = (128 + 64 - v.y) * scale - 25 + 'px'// + '%'
+				v.width = v.type === 'sen' ? senWidth : obsWidth
+				return v
+			})
+		}
 	}),
 	methods: {
 		updateHeatMap(index) {
@@ -77,6 +92,35 @@ export default {
 	}
 }
 
+.vision-map {
+	position: relative;
+
+	.vision {
+		position: absolute;
+		border: 2px solid green;
+		border-radius: 50%;
+		width: 50px;
+		height: 50px;
+
+		&.radiant {
+			border-color: green;
+		}
+
+		&.dire {
+			border-color: red;
+		}
+
+		&.sen {
+			background-color: rgba(0,0,255,.25);
+		}
+
+		&.obs {
+			background-color: rgba(255,255,0,.25);
+		}
+	}
+}
+
+.vision-map,
 .heatmap {
 	img {
 		width: 100%;

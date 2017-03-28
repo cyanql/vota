@@ -16,7 +16,8 @@ export function loadLocalData({commit, state}) {
 		commit(types.GET_USERS_FETCH_SUCCESS, require('src/../.data/players.json'))
 		commit(types.GET_MATCHES_FETCH_SUCCESS, handleMatches(require('src/../.data/matches.json')))
 		const match = require('src/../.data/match.detail.json')
-		match.logs = getLogs(match)
+		match.logs = parseLogs(match)
+		match.visions = parseVisions(match)
 		commit(types.GET_MATCH_FETCH_SUCCESS, handleMatch(match))
 	}
 	const data = {}
@@ -63,7 +64,7 @@ export async function getMatchesFetch({commit, state}, user) {
 
 export async function getMatchFetch({commit, dispatch}, matchid) {
 	const matchDetails = localData.get('matchDetails')
-	let match, logs
+	let match, logs, visions
 
 	if (matchDetails) {
 		match = matchDetails[matchid]
@@ -74,9 +75,10 @@ export async function getMatchFetch({commit, dispatch}, matchid) {
 	}
 
 	try {
-		logs = getLogs(match)
+		logs = parseLogs(match)
+		visions = parseVisions(match)
 		// isDetail
-		if (logs) {
+		if (logs && visions) {
 			localData.update('matchDetails', (v) => {
 				v = v || {}
 				v[matchid] = match
@@ -84,6 +86,7 @@ export async function getMatchFetch({commit, dispatch}, matchid) {
 			})
 		}
 		match.logs = logs
+		match.visions = visions
 	} catch(e) {
 		const result = window.confirm('尚无完整比赛信息，是否解析？\n（过程需要几分钟，请耐心等候...）')
 		if (result) {
@@ -130,8 +133,11 @@ function handleMatches(matches) {
 }
 
 function handleMatch(match) {
+	// 距离现在
 	match.from_now = DateLib.fromNow(new Date(match.start_time * 1000))
+	// 持续时间
 	match.duration = DateLib.duration(match.duration)
+	// 补充img前缀
 	match.players.forEach(v => {
 		v.hero_img = API.HOST + HERO_MAP[v.hero_id].img
 		v.item_0 = API.HOST + (ITEM_MAP[v.item_0] || {}).img
@@ -141,7 +147,7 @@ function handleMatch(match) {
 		v.item_4 = API.HOST + (ITEM_MAP[v.item_4] || {}).img
 		v.item_5 = API.HOST + (ITEM_MAP[v.item_5] || {}).img
 	})
-
+	// 参战率
 	match.radiant_players = []
 	match.dire_players = []
 	match.players.forEach(v => {
@@ -153,6 +159,7 @@ function handleMatch(match) {
 			match.dire_players.push(v)
 		}
 	})
+	// 伤害比
 	match.radiant_damage = match.radiant_players.reduce((p, v) => p + v.hero_damage, 0)
 	match.dire_damage = match.dire_players.reduce((p, v) => p + v.hero_damage, 0)
 	match.radiant_players.forEach(v => {
@@ -164,23 +171,54 @@ function handleMatch(match) {
 	return match
 }
 
-function getLogs(match) {
-	let logs = [], player_imgs = []
+function parseVisions(match) {
+	const visions = []
+	match.players.forEach(v => {
+		v.sen_log.forEach(w => {
+			visions.push({
+				type: 'sen',
+				time: w.time,
+				isRadiant: w.player_slot < 127,
+				x: w.x,
+				y: w.y
+			})
+		})
+		v.obs_log.forEach(w => {
+			visions.push({
+				type: 'obs',
+				time: w.time,
+				isRadiant: w.player_slot < 127,
+				x: w.x,
+				y: w.y
+			})
+		})
+	})
+	return visions
+		.sort((p, n) => p.time < n.time ? -1 : p.time > n.time ? 1 : 0)
+		.map(v => {
+			v.time = v.time > 0 ? DateLib.duration(v.time) : '-' + DateLib.duration(Math.abs(v.time))
+			return v
+		})
+}
+
+function parseLogs(match) {
+	const logs = [], player_imgs = []
 	// match.objectives.forEach(v => {
 	// 	v.isRadiant = v.player_slot < 5
 	// 	v.incident = zh_CN[v.type]
 	// 	logs.push(v)
 	// })
+
 	match.players.forEach(v => {
 		const hero_img = API.HOST + HERO_MAP[v.hero_id].img
 		const hero_icon = API.HOST + HERO_MAP[v.hero_id].icon
 		const isRadiant = v.isRadiant
-
+		// 头像地址
 		player_imgs.push({
 			hero_img,
 			hero_icon
 		})
-
+		// 击杀记录
 		v.kills_log.forEach(w => {
 			logs.push({
 				type: 'kill',
@@ -190,6 +228,7 @@ function getLogs(match) {
 				isRadiant
 			})
 		})
+		// 采购记录
 		v.purchase_log.forEach(w => {
 			logs.push({
 				type: 'purchase',
@@ -200,6 +239,7 @@ function getLogs(match) {
 				isRadiant
 			})
 		})
+		// 神符记录
 		v.runes_log.forEach(w => {
 			logs.push({
 				type: 'rune',
@@ -209,24 +249,25 @@ function getLogs(match) {
 				isRadiant
 			})
 		})
+		// 热点位置
 		v.lane_positions = parsePositions(v.lane_pos)
 	})
+
+	// 团战记录
 	match.teamfights.forEach(v => {
 		let total_damage = 0
 		,	total_gold = 0
 		,	total_xp = 0
-		,	players
+		,	players = v.players
 
-		players = v.players.map((w, index) => {
+		players = players.map((w, index) => {
 			w.hero_img = player_imgs[index].hero_img
 			w.hero_icon = player_imgs[index].hero_icon
 			return w
 		})
 
 		players = players.map(v => {
-			v.class = {
-				death: !!v.deaths
-			}
+			// 技能使用
 			v.abilitys = Object.keys(v.ability_uses).map(key => {
 				return {
 					name: key,
@@ -234,6 +275,7 @@ function getLogs(match) {
 					img: API.IMG_HOST + '/apps/dota2/images/abilities/' + key + '_sm.png'
 				}
 			})
+			// 物品使用
 			v.items = Object.keys(v.item_uses).map(key => {
 				return {
 					name: key,
@@ -241,12 +283,13 @@ function getLogs(match) {
 					img: API.IMG_HOST + ITEMS[key].img
 				}
 			})
+			// 伤害、经验、经济 总量
 			total_damage += v.damage
 			total_xp += v.xp_delta
 			total_gold += Math.abs(v.gold_delta)
 			return v
 		})
-
+		// 伤害、经验、经济 比例
 		players = players.map(v => {
 			v.damage_percent = percentify(v.damage / total_damage)
 			v.xp_percent = percentify(v.xp_delta / total_xp)
@@ -266,11 +309,11 @@ function getLogs(match) {
 			map_img: API.MAP
 		})
 	})
-	logs = logs
-	.sort((p, n) => p.time < n.time ? -1 : p.time > n.time ? 1 : 0)
-	.map(v => {
-		v.time = v.time > 0 ? DateLib.duration(v.time) : '-' + DateLib.duration(Math.abs(v.time))
-		return v
-	})
+
 	return logs
+		.sort((p, n) => p.time < n.time ? -1 : p.time > n.time ? 1 : 0)
+		.map(v => {
+			v.time = v.time > 0 ? DateLib.duration(v.time) : '-' + DateLib.duration(Math.abs(v.time))
+			return v
+		})
 }
