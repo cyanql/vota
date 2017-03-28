@@ -2,10 +2,10 @@
 	<div class="log-teamfight">
 		<div class="log-players" @click="onClick">
 			<div class="team">
-				<figure v-for="player in log.radiant_players" class="hero square" :class="player.class" v-if="player.damage" :style="`background-image: url(${player.hero_img})`"></figure>
+				<figure v-for="player in log.radiant_players" class="hero square" :class="player.deaths && 'death'" v-if="player.damage" :style="`background-image: url(${player.hero_img})`"></figure>
 			</div>
 			<div class="team">
-				<figure v-for="player in log.dire_players" class="hero square" :class="player.class" v-if="player.damage" :style="`background-image: url(${player.hero_img})`"></figure>
+				<figure v-for="player in log.dire_players" class="hero square" :class="player.deaths && 'death'" v-if="player.damage" :style="`background-image: url(${player.hero_img})`"></figure>
 			</div>
 			<div class="log-info">
 				<p>{{log.start}} - {{log.end}}</p>
@@ -37,11 +37,11 @@
 					</div>
 					<div class="title">
 						<p class="chart-title">经验</p>
-						<p class="chart-title">金币</p>
+						<p class="chart-title">经济</p>
 						<p class="chart-title">伤害</p>
 						<p>技能</p>
 						<hr class="placeholder">
-						<p>装备</p>
+						<p>物品</p>
 					</div>
 					<div class="team">
 						<div v-for="player in log.dire_players" v-if="player.damage">
@@ -51,7 +51,7 @@
 							</div>
 							<div class="gold-chart">
 								<span>{{player.gold_delta}}</span>
-								<div class="inner" :style="`height: ${player.gold_percent}`"></div>
+								<div class="inner" :class="player.gold_delta < 0 && 'negative'" :style="`height: ${player.gold_percent}`"></div>
 							</div>
 							<div class="damage-chart">
 								<span>{{player.damage}}</span>

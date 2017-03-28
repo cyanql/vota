@@ -25,7 +25,7 @@ export default {
 				title: '概况'
 			}, {
 				name: 'detail',
-				title: '数据'
+				title: '图表'
 			},
 			// {
 			// 	name: 'trend',
