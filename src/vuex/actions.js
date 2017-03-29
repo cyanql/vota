@@ -79,11 +79,10 @@ export async function getMatchFetch({commit, dispatch}, matchid) {
 		visions = parseVisions(match)
 		// isDetail
 		if (logs && visions) {
-			localData.update('matchDetails', (v) => {
-				v = v || {}
-				v[matchid] = match
-				return v
-			})
+			localData.update('matchDetails', (v) => ({
+				...v,
+				matchid: match
+			}))
 		}
 		match.logs = logs
 		match.visions = visions
@@ -93,6 +92,7 @@ export async function getMatchFetch({commit, dispatch}, matchid) {
 			return dispatch('getMatchDetailFetch', matchid)
 		} else {
 			match.logs = []
+			match.visions = []
 		}
 	}
 	match = handleMatch(match)
@@ -123,13 +123,13 @@ export async function getMatchDetailFetch({dispatch}, matchid) {
 
 // handlers
 function handleMatches(matches) {
-	return matches.map(match => {
-		match.hero_img = API.IMG_HOST + HERO_MAP[match.hero_id].img
-		match.win = match.player_slot < 5 ? match.radiant_win : !match.radiant_win
-		match.from_now = DateLib.fromNow(new Date(match.start_time * 1000))
-		match.parsed = !!match.version
-		return match
-	})
+	return matches.map(match => ({
+		...match,
+		hero_img: API.IMG_HOST + HERO_MAP[match.hero_id].img,
+		win: match.player_slot < 5 ? match.radiant_win : !match.radiant_win,
+		from_now: DateLib.fromNow(new Date(match.start_time * 1000)),
+		parsed: !!match.version,
+	}))
 }
 
 function handleMatch(match) {
@@ -195,10 +195,10 @@ function parseVisions(match) {
 	})
 	return visions
 		.sort((p, n) => p.time < n.time ? -1 : p.time > n.time ? 1 : 0)
-		.map(v => {
-			v.time = v.time > 0 ? DateLib.duration(v.time) : '-' + DateLib.duration(Math.abs(v.time))
-			return v
-		})
+		.map(v => ({
+			...v,
+			time: v.time > 0 ? DateLib.duration(v.time) : '-' + DateLib.duration(Math.abs(v.time))
+		}))
 }
 
 function parseLogs(match) {
@@ -260,43 +260,43 @@ function parseLogs(match) {
 		,	total_xp = 0
 		,	players = v.players
 
-		players = players.map((w, index) => {
-			w.hero_img = player_imgs[index].hero_img
-			w.hero_icon = player_imgs[index].hero_icon
-			return w
-		})
+		players = players.map((w, index) => ({
+			...w,
+			hero_img: player_imgs[index].hero_img,
+			hero_icon: player_imgs[index].hero_icon
+		}))
 
-		players = players.map(v => {
+		players = players.map(w => {
 			// 技能使用
-			v.abilitys = Object.keys(v.ability_uses).map(key => {
-				return {
-					name: key,
-					times: v.ability_uses[key],
-					img: API.IMG_HOST + '/apps/dota2/images/abilities/' + key + '_sm.png'
-				}
-			})
+			const abilities = Object.keys(w.ability_uses).map(key => ({
+				name: key,
+				times: w.ability_uses[key],
+				img: API.IMG_HOST + '/apps/dota2/images/abilities/' + key + '_sm.png'
+			}))
 			// 物品使用
-			v.items = Object.keys(v.item_uses).map(key => {
-				return {
-					name: key,
-					times: v.item_uses[key],
-					img: API.IMG_HOST + ITEMS[key].img
-				}
-			})
+			const items = Object.keys(w.item_uses).map(key => ({
+				name: key,
+				times: w.item_uses[key],
+				img: API.IMG_HOST + ITEMS[key].img
+			}))
 			// 伤害、经验、经济 总量
-			total_damage += v.damage
-			total_xp += v.xp_delta
-			total_gold += Math.abs(v.gold_delta)
-			return v
+			total_damage += w.damage
+			total_xp += w.xp_delta
+			total_gold += Math.abs(w.gold_delta)
+			return {
+				...w,
+				abilities,
+				items
+			}
 		})
 		// 伤害、经验、经济 比例
-		players = players.map(v => {
-			v.damage_percent = percentify(v.damage / total_damage)
-			v.xp_percent = percentify(v.xp_delta / total_xp)
-			v.gold_percent = percentify(Math.abs(v.gold_delta / total_gold))
-			v.positions = parsePositions(v.deaths_pos)
-			return v
-		})
+		players = players.map(w => ({
+			...w,
+			damage_percent: percentify(w.damage / total_damage),
+			xp_percent: percentify(w.xp_delta / total_xp),
+			gold_percent: percentify(Math.abs(w.gold_delta / total_gold)),
+			positions: parsePositions(w.deaths_pos),
+		}))
 
 		logs.push({
 			type: 'teamfight',
@@ -312,8 +312,8 @@ function parseLogs(match) {
 
 	return logs
 		.sort((p, n) => p.time < n.time ? -1 : p.time > n.time ? 1 : 0)
-		.map(v => {
-			v.time = v.time > 0 ? DateLib.duration(v.time) : '-' + DateLib.duration(Math.abs(v.time))
-			return v
-		})
+		.map(v => ({
+			...v,
+			time: v.time > 0 ? DateLib.duration(v.time) : '-' + DateLib.duration(Math.abs(v.time))
+		}))
 }

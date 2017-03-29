@@ -30,7 +30,7 @@
 								<span>{{player.damage}}</span>
 								<div class="inner" :style="`height: ${player.damage_percent}`"></div>
 							</div>
-							<figure class="rectangle" v-for="ability in player.abilitys" :style="`background-image: url(${ability.img})`">{{ability.times}}</figure>
+							<figure class="rectangle" v-for="ability in player.abilities" :style="`background-image: url(${ability.img})`">{{ability.times}}</figure>
 							<hr class="placeholder">
 							<figure class="rectangle" v-for="item in player.items" :style="`background-image: url(${item.img})`">{{item.times}}</figure>
 						</div>
@@ -57,7 +57,7 @@
 								<span>{{player.damage}}</span>
 								<div class="inner" :style="`height: ${player.damage_percent}`"></div>
 							</div>
-							<figure class="rectangle" v-for="ability in player.abilitys" :style="`background-image: url(${ability.img})`">{{ability.times}}</figure>
+							<figure class="rectangle" v-for="ability in player.abilities" :style="`background-image: url(${ability.img})`">{{ability.times}}</figure>
 							<hr class="placeholder">
 							<figure class="rectangle" v-for="item in player.items" :style="`background-image: url(${item.img})`">{{item.times}}</figure>
 						</div>
