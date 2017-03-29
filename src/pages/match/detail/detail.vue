@@ -1,6 +1,6 @@
 <template>
 	<div class="d-match-detail" v-if="match">
-		<div ref="heatmap" class="heatmap">
+		<div ref="heatmap" class="heat-map">
 			<img :src="MAP_IMG" alt="">
 		</div>
 		<div class="heros">
@@ -34,18 +34,18 @@ export default {
 			const senWidth = document.body.offsetWidth / 12
 			const obsWidth = senWidth * 1600 / 850
 			const scale = document.body.offsetWidth / 128
-			return state.match.visions.map(v => {
-				v.x = (v.x - 64) * scale - 25 + 'px'// + '%'
-				v.y = (128 + 64 - v.y) * scale - 25 + 'px'// + '%'
-				v.width = v.type === 'sen' ? senWidth : obsWidth
-				return v
-			})
+			return state.match.visions.map(v => ({
+				...v,
+				x: (v.x - 64) * scale - 25 + 'px',
+				y: (128 + 64 - v.y) * scale - 25 + 'px',
+				width: v.type === 'sen' ? senWidth : obsWidth
+			}))
 		}
 	}),
 	methods: {
 		updateHeatMap(index) {
 			const scale = this.scale
-			const data = this.match.players[index].lane_positions.map(v => ({
+			const data = (this.match.players[index].lane_positions || []).map(v => ({
 				x: Math.round(v.x * scale),
 				y: Math.round(v.y * scale),
 				value: v.value + 15
@@ -121,7 +121,7 @@ export default {
 }
 
 .vision-map,
-.heatmap {
+.heat-map {
 	img {
 		width: 100%;
 		vertical-align: bottom;
