@@ -2,6 +2,7 @@ const webpack = require('webpack')
 const path = require('path')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin')
+const FaviconsWebpackPlugin = require('favicons-webpack-plugin')
 const ExtractTextPlugin = require('extract-text-webpack-plugin')
 
 const SRC_PATH = path.resolve(__dirname, 'src')
@@ -20,9 +21,11 @@ const config = {
 		timings: true
 	},
 	devServer: {
+        hot: true,
+        inline: true,
 		host: '0.0.0.0',
 		port: 3000,
-		publicPath: '/dist' //模板、样式、脚本、图片等资源对应server上的路径
+		publicPath: '/' //模板、样式、脚本、图片等资源对应server上的路径
 	},
 	entry: {
 		index: [SRC_PATH]
@@ -47,23 +50,6 @@ const config = {
 			exclude: /node_modules/,
 			loader: 'babel-loader'
 		}, {
-			test: /\.vue$/,
-			loader: 'vue-loader',
-			options: {
-				loaders: {
-					scss: ExtractTextPlugin.extract({
-						fallback: 'vue-style-loader',
-						use: 'css-loader!sass-loader'
-					})
-				}
-			}
-		}, {
-			test: /\.s?css$/,
-			loader: ExtractTextPlugin.extract({
-				fallback: 'vue-style-loader',
-				use: 'css-loader!sass-loader'
-			})
-		}, {
 			test: /\.(jpg|png)$/,
 			loader: 'url-loader?name=images/[name].[ext]&limit=51200'
 		}, {
@@ -77,7 +63,39 @@ const config = {
 		}),
 		new webpack.DefinePlugin({
 			'process.env.NODE_ENV': JSON.stringify(NODE_ENV)
-		})
+		}),
+        new FaviconsWebpackPlugin({
+            // Your source logo
+            logo: path.resolve(__dirname, 'src/vota.png'),
+            // The prefix for all image files (might be a folder or a name)
+            prefix: 'icons-[hash]/',
+            // Emit all stats of the generated icons
+            emitStats: false,
+            // The name of the json containing all favicon information
+            statsFilename: 'iconstats-[hash].json',
+            // Generate a cache file with control hashes and
+            // don't rebuild the favicons until those hashes change
+            persistentCache: true,
+            // Inject the html into the html-webpack-plugin
+            inject: true,
+            // favicon background color (see https://github.com/haydenbleasel/favicons#usage)
+            background: '#000',
+            // favicon app title (see https://github.com/haydenbleasel/favicons#usage)
+            title: 'VotA',
+            // which icons should be generated (see https://github.com/haydenbleasel/favicons#usage)
+            icons: {
+              android: true,
+              appleIcon: true,
+              appleStartup: true,
+              coast: false,
+              favicons: false,
+              firefox: false,
+              opengraph: false,
+              twitter: false,
+              yandex: false,
+              windows: false
+            }
+          })
 	]
 }
 
@@ -85,7 +103,7 @@ const config = {
 for (const name of Object.keys(config.entry)) {
 	if (name !== 'lib') {
 		config.plugins.push(new HtmlWebpackPlugin({ //根据模板插入css/js等生成最终HTML
-			favicon: path.resolve(SRC_PATH, 'favicon.ico'), //favicon路径，通过webpack引入同时可以生成hash值
+            favicon: path.resolve(__dirname, 'src/favicon.ico'),
 			title: name,
 			chunks: [name, 'lib'], //需要引入的chunk，不配置就会引入所有页面的资源
 			template: path.resolve(SRC_PATH, 'template.html'),
@@ -104,6 +122,24 @@ if (NODE_ENV === 'development') {
 	config.watch = true
 	config.plugins.unshift(new webpack.HotModuleReplacementPlugin())
 	config.devtool = 'inline-source-map'//'cheap-module-eval-source-map'
+    config.module.rules.push({
+        test: /\.vue$/,
+        loader: 'vue-loader',
+        options: {
+            loaders: {
+                scss: ExtractTextPlugin.extract({
+                    fallback: 'vue-style-loader',
+                    use: 'css-loader!sass-loader'
+                })
+            }
+        }
+    }, {
+        test: /\.s?css$/,
+        loader: ExtractTextPlugin.extract({
+            fallback: 'vue-style-loader',
+            use: 'css-loader!sass-loader'
+        })
+    })
 }
 
 if (NODE_ENV === 'production') {
@@ -123,6 +159,18 @@ if (NODE_ENV === 'production') {
 		vuex: 'Vuex',
 		'vue-router': 'VueRouter'
 	}
+    config.module.rules.push({
+        test: /\.vue$/,
+        loader: 'vue-loader',
+        options: {
+            loaders: {
+                scss: 'vue-style-loader!css-loader!sass-loader'
+            }
+        }
+    }, {
+        test: /\.s?css$/,
+        loader: 'vue-style-loader!css-loader!sass-loader'
+    })
 }
 
 module.exports = config

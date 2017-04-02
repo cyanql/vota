@@ -1,11 +1,11 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import Userinfo from './pages/userinfo'
-import Home from './pages/home'
-import Match from './pages/match'
-import Summary from './pages/match/summary'
-import Detail from './pages/match/detail'
-import Log from './pages/match/log'
+import Userinfo from './page/userinfo'
+import Home from './page/home/index'
+import Match from './page/match'
+import Summary from './page/match/summary'
+import Detail from './page/match/detail'
+import Log from './page/match/log'
 
 process.env.NODE_ENV !== 'production' && Vue.use(VueRouter)
 

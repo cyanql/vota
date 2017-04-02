@@ -1,7 +1,8 @@
 <template>
-	<div class="container">
+	<div>
+        <div class="status-bar-placeholder" v-if="fullscreen"></div>
 		<slide-transition :direction="transitionDirection">
-			<router-view></router-view>
+			<router-view :class="fullscreen && 'fullscreen'"></router-view>
 		</slide-transition>
 		<div class="floating-btn" @click="redirectHome">
 			<svg-home></svg-home>
@@ -10,7 +11,7 @@
 </template>
 <script>
 import svgHome from 'src/component/svg/home'
-import slideTransition from 'src/component/slide-transition'
+import { mapState } from 'vuex'
 
 const PAGE_INDEX = {
 	home: 1,
@@ -34,13 +35,18 @@ export default {
 			}
 		}
 	},
+    computed: mapState({
+        fullscreen: state => state.status.fullscreen
+    }),
 	methods: {
 		redirectHome() {
 			this.$router.push('/home')
-		}
+		},
+        goBack() {
+            this.$router.go(-1)
+        }
 	},
 	components: {
-		slideTransition,
 		svgHome
 	},
 	created() {
@@ -51,6 +57,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import "~src/style/variable";
+
 .floating-btn {
     position: fixed;
     display: flex;
@@ -62,5 +70,15 @@ export default {
     background-color: rgba(0,0,0,.65);
     align-items: center;
     border-radius: 50%;
+    z-index: 1000;
+}
+
+.status-bar-placeholder {
+    height: 20px;
+    background-color: $status-bar-bgcolor;
+}
+
+.fullscreen {
+    margin-top: 20px;
 }
 </style>
