@@ -12,12 +12,11 @@ const store = new Vuex.Store(storeConf)
 if (module.hot) {
 	module.hot.accept(['./actions', './store', './types'], () => {
 		const newActions = require('./actions').default
-		const newMutations = require('./store').default
+		const newMutations = require('./store').mutations
 		store.hotUpdate({
 			actions: newActions,
 			mutations: newMutations
 		})
 	})
 }
-
 export default store

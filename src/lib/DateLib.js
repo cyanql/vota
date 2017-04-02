@@ -7,7 +7,7 @@ function DateLib(date = new Date(), format = '-') {
 			this.month = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1).toString()
 			this.day = (date.getDate() < 10 ? '0' + date.getDate() : date.getDate()).toString()
 			this.format = format
-			break
+			return
 		case 'string':
 			let year = date.match(/^\d{2,4}(?=[-/\\])/),
 				month = date.match(/\d+(?=[-/\\]\d+$)/),
@@ -19,7 +19,7 @@ function DateLib(date = new Date(), format = '-') {
 			this.month = (parseInt(month) < 10 ? '0' + parseInt(month) : month).toString()
 			this.day = (parseInt(day) < 10 ? '0' + parseInt(day) : day).toString()
 			this.format = format
-			break
+			return
 		default:
 			throw new Error('date should be an object || string, you can through a new Date() || "yyy-mm-dd"')
 	}
@@ -81,7 +81,7 @@ DateLib.duration = function test(seconds) {
 	minutes = minutes - hours * 60
 	seconds = seconds - (hours * 60 + minutes) * 60
 	duration = []
-	
+
 	if (hours) {
 		duration.push(format(hours))
 	}
@@ -90,4 +90,4 @@ DateLib.duration = function test(seconds) {
 	return duration.join(':')
 }
 
-module.exports = DateLib
+export default DateLib
