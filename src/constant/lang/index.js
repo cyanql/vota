@@ -1,1 +1,1 @@
-export zh_CN from './zh-CN.json'
+export zh_CN from './zh-CN'

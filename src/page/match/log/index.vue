@@ -1,25 +1,29 @@
 <template>
-    <d-scroller class="log-contianer" :lazy-number="4" @lazy="onLazy">
-		<div class="filters">
-			<span class="filter" :class="filters[key].value && 'opened'" v-for="key in Object.keys(filters)" @click="toggleFilter(key)">{{filters[key].name}}</span>
-		</div>
-		<div class="filter-cost">
-			<span>装备金额</span>
-			<input type="tel" v-model.lazy.number="filterCost">
-		</div>
-		<template v-for="(log, index) in logs" v-show="index < limit">
-			<d-teamfight class="log" v-if="log.type === 'teamfight'" :log="log"></d-teamfight>
-			<d-row v-else class="log" :class="log.isRadiant ? 'left' : 'right'" :log="log"></d-row>
-		</template>
-		<footer>
-			{{match.radiant_win ? '天辉' : '夜宴'}} 胜利
-		</footer>
+    <d-scroller class="log-contianer" @lazy="onLazy">
+        <d-card title="过滤器" icon="filter">
+    		<div class="filters">
+    			<span class="filter" :class="filters[key].value && 'opened'" v-for="key in Object.keys(filters)" @click="toggleFilter(key)">{{filters[key].name}}</span>
+    		</div>
+    		<div class="filter-cost">
+    			<span class="label">物品金额</span>
+    			<input type="tel" v-model.lazy.number="filterCost">
+    		</div>
+        </d-card>
+        <d-card title="日志列表" icon="list">
+    		<template v-for="(log, index) in logs">
+    			<d-teamfight class="log" v-if="log.type === 'teamfight'" :log="log" v-show="index < limit"></d-teamfight>
+    			<d-row v-else class="log" :class="log.isRadiant ? 'left' : 'right'" :log="log" v-show="index < limit"></d-row>
+    		</template>
+    		<footer>
+    			{{match.radiant_win ? '天辉' : '夜宴'}} 胜利
+    		</footer>
+        </d-card>
     </d-scroller>
 </template>
 
 <script>
-import Row from './component/row'
-import Teamfight from './component/teamfight'
+import Row from './row'
+import Teamfight from './teamfight'
 import { mapState } from 'vuex'
 
 export default {
@@ -74,7 +78,6 @@ export default {
 	.filters {
 		display: flex;
 		flex-wrap: wrap;
-		margin: 10px 0;
 		padding: 5px 0;
 		background-color: #fff;
 
@@ -96,13 +99,13 @@ export default {
 	.filter-cost {
 		display: flex;
 		width: 100%;
-		padding: 5px 10px;
-		margin-bottom: 10px;
+		padding: 10px;
+        padding-top: 0;
 		background-color: #fff;
 		align-items: center;
 
 		input {
-			padding: 0 10px;
+			margin-left: 10px;
 			flex: 1;
 		}
 	}

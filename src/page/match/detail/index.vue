@@ -1,6 +1,6 @@
 <template>
 	<d-scroller class="d-match-detail" v-if="match">
-        <d-card title="热点图">
+        <d-card title="热力图" icon="hotfill">
     		<div ref="heatmap" class="heat-map">
     			<img :src="MAP_IMG" alt="">
     		</div>
@@ -8,7 +8,7 @@
     			<img v-for="(player, index) in match.players" :class="heroIndex === index && 'selected'" :src="player.heroImage" @click="updateHeatMap(index)"></img>
     		</div>
         </d-card>
-        <d-card title="视野">
+        <d-card title="视野" icon="attentionfill">
     		<div class="vision-map">
     			<img :src="MAP_IMG" alt="">
     			<div class="vision" v-for="vision in visions" :class="[vision.isRadiant ? 'radiant' : 'dire', vision.type]" :style="`left: ${vision.x}; top: ${vision.y}; width: ${vision.width}px; height: ${vision.width}px`"></div>

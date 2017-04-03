@@ -4,13 +4,16 @@
             <input type="text" class="search-inner" placeholder="昵称 或者 id" :value="username" @input="changeUserName($event.target.value)"  @keyup.enter="getUsersFetch(username)">
         </div>
 		<d-scroller @lazy="onLazy">
-            <d-card title="结果">
+            <d-card title="结果" icon="similar">
                 <div class="list">
                     <user-row class="list-item" v-for="(user, index) in users" v-show="index < limit" :key="user.userid" :user="user" @click="getMatchesFetch(user)"></user-row>
                 </div>
             </d-card>
-            <d-card title="历史搜索记录">
-                <span slot="button" @click="removeLocalData('usernames')">清空</span>
+            <d-card title="历史搜索记录" icon="explore">
+                <span slot="button" @click="removeLocalData('usernames')">
+                    <d-icon icon="delete_light"></d-icon>
+                    <span>清空</span>
+                </span>
     			<div class="list">
                     <user-row class="list-item" v-for="user in historyUsers" :key="user.userid" :user="user" @click="getMatchesFetch(user)"></user-row>
     			</div>
@@ -67,11 +70,6 @@ export default {
     &-inner {
         width: 100%;
         text-align: center;
-        text-indent: 10px;
-        line-height: 2;
-        font-size: 12px;
-        border-radius: 3px;
-        box-shadow: 0 0 3px rgba(0,0,0,.5) inset;
     }
 }
 </style>

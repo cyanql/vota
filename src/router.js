@@ -1,8 +1,9 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import Userinfo from './page/userinfo'
-import Home from './page/home/index'
+import User from './page/user'
+import Home from './page/home'
 import Match from './page/match'
+import OtherUser from './page/other-user'
 import Summary from './page/match/summary'
 import Detail from './page/match/detail'
 import Log from './page/match/log'
@@ -14,9 +15,13 @@ const routes = [{
 	path: '/home',
 	component: Home
 }, {
-	name: 'userinfo',
-	path: '/Userinfo',
-	component: Userinfo
+	name: 'user',
+	path: '/user',
+	component: User
+}, {
+    name: 'other-user',
+    path: '/other-user',
+    component: OtherUser
 }, {
 	path: '/match',
 	component: Match,
