@@ -3,7 +3,7 @@
         <d-avator circle :src="user.avatarfull"></d-avator>
         <span class="username">{{user.personaname}}</span>
         <span class="userid">{{user.account_id}}</span>
-        <span class="arrow">></span>
+        <span class="arrow"><d-icon icon="right"></d-icon></span>
     </div>
 </template>
 

@@ -21,6 +21,7 @@ export default {
 <style lang="scss" scoped>
 .d-avator {
     height: 30px;
+    vertical-align: bottom;
 
     &.circle {
         border-radius: 50px;

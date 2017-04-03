@@ -10,6 +10,8 @@ const DIST_PATH = path.resolve(__dirname, 'docs')
 
 const NODE_ENV = process.env.NODE_ENV
 
+const APP_NAME = 'VotA'
+
 
 const config = {
 	stats: {
@@ -42,6 +44,7 @@ const config = {
 			vuex: 'vuex/dist/vuex.js',
 			'vue-router': 'vue-router/dist/vue-router.js'
 		},
+        mainFiles: ['index', 'index.vue'],
 		extensions: ['.js', '.vue']
 	},
 	module: {
@@ -50,7 +53,7 @@ const config = {
 			exclude: /node_modules/,
 			loader: 'babel-loader'
 		}, {
-			test: /\.(jpg|png)$/,
+			test: /\.(jpg)$/,
 			loader: 'url-loader?name=images/[name].[ext]&limit=51200'
 		}, {
 			test: /\.(eot|svg|ttf|woff(2)?)(\?[a-z0-9=\.]+)?$/,
@@ -104,7 +107,7 @@ for (const name of Object.keys(config.entry)) {
 	if (name !== 'lib') {
 		config.plugins.push(new HtmlWebpackPlugin({ //根据模板插入css/js等生成最终HTML
             favicon: path.resolve(__dirname, 'src/favicon.ico'),
-			title: name,
+			title: 'VotA',
 			chunks: [name, 'lib'], //需要引入的chunk，不配置就会引入所有页面的资源
 			template: path.resolve(SRC_PATH, 'template.html'),
 			filename: './' + name + '.html', //生成的html存放路径，相对于path
@@ -127,18 +130,12 @@ if (NODE_ENV === 'development') {
         loader: 'vue-loader',
         options: {
             loaders: {
-                scss: ExtractTextPlugin.extract({
-                    fallback: 'vue-style-loader',
-                    use: 'css-loader!sass-loader'
-                })
+                scss: 'vue-style-loader!css-loader!sass-loader'
             }
         }
     }, {
         test: /\.s?css$/,
-        loader: ExtractTextPlugin.extract({
-            fallback: 'vue-style-loader',
-            use: 'css-loader!sass-loader'
-        })
+        loader: 'vue-style-loader!css-loader!sass-loader'
     })
 }
 
@@ -164,12 +161,18 @@ if (NODE_ENV === 'production') {
         loader: 'vue-loader',
         options: {
             loaders: {
-                scss: 'vue-style-loader!css-loader!sass-loader'
+                scss: ExtractTextPlugin.extract({
+                    fallback: 'vue-style-loader',
+                    use: 'css-loader!sass-loader'
+                })
             }
         }
     }, {
         test: /\.s?css$/,
-        loader: 'vue-style-loader!css-loader!sass-loader'
+        loader: ExtractTextPlugin.extract({
+            fallback: 'vue-style-loader',
+            use: 'css-loader!sass-loader'
+        })
     })
 }
 

@@ -1,11 +1,11 @@
 <template>
-	<dl class="d-team">
-		<dt class="d-team-header">
-			<div class="left">
+	<dl class="team">
+		<dt class="team-header">
+			<div class="team-header-left">
 				<span class="faction">{{faction}}</span>
 				<span class="win">{{win ? '胜利' : '失败'}}</span>
 			</div>
-			<div class="right">
+			<div class="team-header-right">
 				<span>杀敌</span>
 				<span>{{score}}</span>
 			</div>
@@ -30,25 +30,25 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.d-team {
+.team {
 	margin: 10px 0;
 	background-color: white;
 
 	&.radiant {
-		.d-team-header {
+		.team-header {
 			border-top-color: #00a854;
 
-			& > .left {
+			&-left {
 				background-color: #00a854;
 			}
 		}
 	}
 
 	&.dire {
-		.d-team-header {
+		.team-header {
 			border-top-color: #b21;
 
-			& > .left {
+			&-left {
 				background-color: #b21;
 			}
 		}
@@ -64,7 +64,7 @@ export default {
 			font-size: 12px;
 		}
 
-		.left {
+		&-left {
 			color: white;
 			padding-left: 10px;
 			background-color: #aaa;
@@ -80,7 +80,7 @@ export default {
 			}
 		}
 
-		.right {
+		&-right {
 			padding-right: 10px;
 			font-size: 10px;
 		}

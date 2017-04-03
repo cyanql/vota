@@ -3,13 +3,20 @@ import router from 'src/router'
 import DateLib from 'src/lib/DateLib'
 import { ITEM_MAP, HERO_MAP, RUNE_MAP } from 'src/constant/image'
 import API from 'src/constant/api'
+import { zh_CN } from 'src/constant/lang'
 import { percentify, polling, localData, parsePositions } from 'src/util'
 
 
 export function auth({commit}) {
 	commit(types.AUTH)
 }
+export function backup({commit}) {
+    commit(types.BACKUP)
+}
 
+export function restore({commit}) {
+    commit(types.RESTORE)
+}
 
 // 装载本地数据
 export function loadLocalData({commit, state}) {
@@ -48,28 +55,66 @@ export async function getUsersFetch({commit, dispatch}, name) {
 	}
 }
 
+const matchQuery = {
+    limit: 20,
+    project: [
+        'hero_id',
+        'start_time',
+        'duration',
+        // 'player_slot',
+        'radiant_win',
+        'game_mode',
+        // 'lobby_type',
+        'version',
+        'kills',
+        'deaths',
+        'assists',
+        'skill',
+        // 'xp_per_min',
+        // 'gold_per_min',
+        // 'hero_damage',
+        // 'tower_damage',
+        // 'hero_healing',
+        // 'last_hits'
+    ]
+}
+
 export async function getOffsetMatchesFetch({commit, state}, offset) {
     const user = state.status.history.user
-    const matches = await API.fetch(API.players.matches, {param: user.account_id, query: {limit: 20, offset}})
+    const matches = await API.fetch(API.players.matches, {param: user.account_id, query: {...matchQuery, offset}})
     commit(types.GET_OFFSET_MATCHES_FETCH_SUCCESS, handleMatches(matches))
 }
 
-// match
-export async function getMatchesFetch({commit, state}, user) {
-	// const userid = state.users[state.status.selectUserIndex].account_id
-	const matches = await API.fetch(API.players.matches, {param: user.account_id, query: {limit: 20}})
+export async function getOtherUserMatchesFetch({commit, dispatch}, user) {
+    if (!user.account_id) {
+        return alert('用户资料未公开')
+    }
+	const matches = await API.fetch(API.players.matches, {param: user.account_id, query: matchQuery})
+    dispatch('backup')
     commit(types.GET_MATCHES_FETCH_SUCCESS, handleMatches(matches))
     commit(types.SELECT_USER, user)
-	router.push('/userinfo')
+	router.push('/other-user')
+}
+
+// match
+export async function getMatchesFetch({commit, dispatch}, user) {
+    if (!user.account_id) {
+        return alert('用户资料未公开')
+    }
+	const matches = await API.fetch(API.players.matches, {param: user.account_id, query: matchQuery})
+    commit(types.GET_MATCHES_FETCH_SUCCESS, handleMatches(matches))
+    commit(types.SELECT_USER, user)
+	router.push('/user')
+
     localData.update('user', () => user)
-	localData.update('users', users => {
-		if (users) {
-			users.every(v => v.account_id !== user.account_id) && users.push(user)
-			return users
-		} else {
-			return [user]
-		}
-	})
+    localData.update('users', users => {
+        if (users) {
+            users.every(v => v.account_id !== user.account_id) && users.push(user)
+            return users
+        } else {
+            return [user]
+        }
+    })
 }
 
 export async function getMatchFetch({commit, dispatch}, matchid) {
@@ -111,7 +156,7 @@ export async function getMatchFetch({commit, dispatch}, matchid) {
 }
 
 export async function getMatchDetailFetch({dispatch}, matchid) {
-	let json = API.fetch(API.request.job, {param: matchid, method: 'post'})
+	let json = await API.fetch(API.request.job, {param: matchid, method: 'post'})
 
 	if (json.state === 'failed') {
 		return alert('解析失败')
@@ -137,16 +182,22 @@ function handleMatches(matches) {
 		...match,
 		heroImage: HERO_MAP.ID_MAP[match.hero_id].img,
 		win: match.player_slot < 5 ? match.radiant_win : !match.radiant_win,
-		from_now: DateLib.fromNow(new Date(match.start_time * 1000)),
+		fromNow: DateLib.fromNow(new Date(match.start_time * 1000)),
 		parsed: !!match.version,
+        gameMode: zh_CN.gameMode[match.game_mode],
+        skillLevel: zh_CN.skill[match.skill]
 	}))
 }
 
 function handleMatch(match) {
 	// 距离现在
-	match.from_now = DateLib.fromNow(new Date(match.start_time * 1000))
+	match.fromNow = DateLib.fromNow(new Date(match.start_time * 1000))
 	// 持续时间
 	match.duration = DateLib.duration(match.duration)
+    // 等级
+    match.skillLevel = zh_CN.skill[match.skill]
+    // 模式
+    match.gameMode = zh_CN.gameMode[match.game_mode]
 	// 补充img前缀
 	match.players.forEach(v => {
 		v.heroImage = HERO_MAP.ID_MAP[v.hero_id].img

@@ -1,8 +1,11 @@
 <template lang="html">
     <div class="d-card">
         <div class="d-card-header">
-			<span class="d-card-title">{{title}}</span>
-			<span class="d-card-btn" v-if="$slots.button">
+			<span class="d-card-title">
+                <d-icon v-if="icon" :icon="icon"></d-icon>
+                <span class="d-card-title-text">{{title}}</span>
+            </span>
+			<span class="d-card-btn-group" v-if="$slots.button">
 			    <slot name="button"></slot>
 			</span>
         </div>
@@ -16,6 +19,7 @@
 export default {
     name: 'd-card',
     props: {
+        icon: String,
         title: String
     }
 }
@@ -30,7 +34,16 @@ export default {
         font-size: 12px;
     }
 
-    &-btn {
+    &-title {
+        display: flex;
+        align-items: center;
+
+        &-text {
+            padding-left: 5px;
+        }
+    }
+
+    &-btn-group {
         opacity: .5;
         border: 1px solid rgba(0,0,0,.1);
         padding: 0 5px;

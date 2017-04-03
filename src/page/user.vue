@@ -2,12 +2,15 @@
     <d-container>
         <d-nav :title="user.account_id" @left-click="goBack"></d-nav>
         <d-scroller @lazy="onLazy">
-    	    <d-card title="比赛">
+    	    <d-card title="比赛" icon="selection">
         		<div class="match-row list-item" v-for="match in matches" @click="getMatchFetch(match.match_id)">
         			<d-avator class="avator" :src="match.heroImage"></d-avator>
         			<div class="flex-1">
         				<span class="kda">{{[match.kills, match.deaths, match.assists].join('/')}}</span>
-        				<p class="from-now">{{match.from_now}}</p>
+        				<div class="from-now">
+                            <span>{{match.fromNow}}</span>
+                            <span>{{match.skillLevel}}</span>
+                        </div>
         			</div>
                     <span class="indicator" v-if="match.parsed"></span>
         			<span class="win" v-if="match.win">胜利</span>

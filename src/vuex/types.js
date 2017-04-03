@@ -1,4 +1,6 @@
 // status
+export const BACKUP = 'BACKUP'
+export const RESTORE = 'RESTORE'
 export const AUTH = 'AUTH'
 export const CHANGE_USER_NAME = 'CHANGE_USER_NAME'
 export const SELECT_USER = 'SELECT_USER'

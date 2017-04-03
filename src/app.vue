@@ -15,7 +15,7 @@ import { mapState } from 'vuex'
 
 const PAGE_INDEX = {
 	home: 1,
-	userinfo: 2
+	user: 2
 }
 
 export default {
