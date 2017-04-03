@@ -156,14 +156,14 @@ export async function getMatchFetch({commit, dispatch}, matchid) {
 }
 
 export async function getMatchDetailFetch({dispatch}, matchid) {
-	let json = await API.fetch(API.request.job, {param: matchid, method: 'post'})
+	const data = await API.fetch(API.request.job, {param: matchid, method: 'post'})
 
-	if (json.state === 'failed') {
+	if (data.state === 'failed') {
 		return alert('解析失败')
 	}
 
 	polling(async (done) => {
-		json = await API.fetch(API.request.match, {param: json.job.jobId})
+		const json = await API.fetch(API.request.match, {param: data.job.jobId})
 		if (json.state === 'active') {
 			console.log(json.progress)
 		} else if (json.state === 'completed') {
@@ -190,6 +190,7 @@ function handleMatches(matches) {
 }
 
 function handleMatch(match) {
+    match = Object.assign({}, match)
 	// 距离现在
 	match.fromNow = DateLib.fromNow(new Date(match.start_time * 1000))
 	// 持续时间

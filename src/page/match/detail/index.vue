@@ -5,7 +5,7 @@
     			<img :src="MAP_IMG" alt="">
     		</div>
     		<div class="heros">
-    			<img v-for="(player, index) in match.players" :class="heroIndex === index && 'selected'" :src="player.heroImage" @click="updateHeatMap(index)"></img>
+    			<img v-for="(player, index) in players" :class="heroIndex === index && 'selected'" :src="player.heroImage" @click="updateHeatMap(index)"></img>
     		</div>
         </d-card>
         <d-card title="视野" icon="attentionfill">
@@ -33,6 +33,7 @@ export default {
 	},
 	computed: mapState({
 		match: state => state.match,
+        players: state => state.match.players.sort((p, n) => p.player_slot < n.player_slot ? -1 : p.player_slot > n.player_slot ? 1 : 0),
 		visions(state) {
 			const senWidth = document.body.offsetWidth / 12
 			const obsWidth = senWidth * 1600 / 850
