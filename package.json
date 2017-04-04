@@ -14,7 +14,6 @@
   "author": "keyves",
   "license": "MIT",
   "dependencies": {
-    "add-to-homescreen": "^3.2.6",
     "fastclick": "^1.0.6",
     "heatmap.js": "^2.0.5",
     "isomorphic-fetch": "^2.2.1",

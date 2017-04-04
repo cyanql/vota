@@ -11,7 +11,7 @@
             </div>
             <div class="row-info-content">
     			<div class="row-info-content-left">
-    				<div>参战率：{{player.fight_ratio}}</div>
+    				<div>参战率：{{player.fightPercent}}</div>
     				<div>伤害：{{player.damagePercent}}</div>
     			</div>
     			<div class="row-info-content-right">
@@ -56,7 +56,7 @@ export default {
 	font-size: 10px;
 
 	&-avator {
-        height: 40px;
+	    width: 75px;
 
         &-wrapper {
     		position: relative;
@@ -74,6 +74,7 @@ export default {
 	&-info {
 	    flex: 1;
         padding: 0 10px;
+        overflow: hidden;
 
         &-header {
             display: flex;
@@ -82,6 +83,9 @@ export default {
         }
 
         &-username {
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
             font-size: 14px;
             color: $red-9;
         }
@@ -113,8 +117,8 @@ export default {
 
     &-item {
         flex: 1;
-        height: 20px;
-        // width: 25px;
+        // height: 20px;
+        width: 27.5px;
         margin: 1px;
     }
 }

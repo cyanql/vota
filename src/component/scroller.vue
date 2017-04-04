@@ -5,6 +5,12 @@
 </template>
 
 <script>
+import plotform from 'src/util/plotform'
+
+if (!plotform.android) {
+    document.body.addEventListener('touchmove', e => e.preventDefault(), false)
+}
+
 export default {
     name: 'd-scroller',
     props: {
@@ -16,20 +22,22 @@ export default {
     mounted() {
         const el = this.$refs.scroller
 
-        el.addEventListener('touchstart', (e) => {
-            el.allowUp = el.scrollTop > 0
-            el.allowDown = el.scrollTop < el.scrollHeight - el.clientHeight
-            el.startY = e.pageY
-        })
+        if (!plotform.android) {
+            el.addEventListener('touchstart', (e) => {
+                el.allowUp = el.scrollTop > 0
+                el.allowDown = el.scrollTop < el.scrollHeight - el.clientHeight
+                el.startY = e.pageY
+            })
 
-        el.addEventListener('touchmove', (e) => {
-            if (e.pageY > el.startY && el.allowUp || e.pageY < el.startY && el.allowDown) {
-                e.stopPropagation()
-            } else {
-                e.preventDefault()
-            }
-            el.startY = e.pageY
-        })
+            el.addEventListener('touchmove', (e) => {
+                if (e.pageY > el.startY && el.allowUp || e.pageY < el.startY && el.allowDown) {
+                    e.stopPropagation()
+                } else {
+                    e.preventDefault()
+                }
+                el.startY = e.pageY
+            })
+        }
 
         let scrollDistance = 0
         el.addEventListener('scroll', (e) => {

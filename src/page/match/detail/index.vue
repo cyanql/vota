@@ -1,11 +1,11 @@
 <template>
-	<d-scroller class="d-match-detail" v-if="match">
+	<d-scroller class="d-match-detail">
         <d-card title="热力图" icon="hotfill">
     		<div ref="heatmap" class="heat-map">
     			<img :src="MAP_IMG" alt="">
     		</div>
     		<div class="heros">
-    			<img v-for="(player, index) in players" :class="heroIndex === index && 'selected'" :src="player.heroImage" @click="updateHeatMap(index)"></img>
+    			<img v-for="(heat, index) in heats" :class="heroIndex === index && 'selected'" :src="heat.heroImage" @click="updateHeatMap(index)"></img>
     		</div>
         </d-card>
         <d-card title="视野" icon="attentionfill">
@@ -27,50 +27,27 @@ export default {
 		return {
 			MAP_IMG: API.MAP,
 			heatmap: null,
-			heroIndex: 0,
-			scale: 1
+			heroIndex: 0
 		}
 	},
 	computed: mapState({
-		match: state => state.match,
-        players: state => state.match.players.sort((p, n) => p.player_slot < n.player_slot ? -1 : p.player_slot > n.player_slot ? 1 : 0),
-		visions(state) {
-			const senWidth = document.body.offsetWidth / 12
-			const obsWidth = senWidth * 1600 / 850
-			const scale = document.body.offsetWidth / 128
-			return state.match.visions.map(v => ({
-				...v,
-				x: (v.x - 64) * scale - 25 + 'px',
-				y: (128 + 64 - v.y) * scale - 25 + 'px',
-				width: v.type === 'sen' ? senWidth : obsWidth
-			}))
-		}
+		heats: state => state.match.heats,
+		visions: state => state.match.visions
 	}),
 	methods: {
 		updateHeatMap(index) {
-			const scale = this.scale
-			const data = (this.match.players[index].lane_positions || []).map(v => ({
-				x: Math.round(v.x * scale),
-				y: Math.round(v.y * scale),
-				value: v.value + 15
-			}))
-			const max = Math.max.apply(null, data.map(v => v.value))
+            const heat = this.heats[index]
 			this.heatmap.setData({
-				min: 0,
-				max,
-				data
+				min: heat.min,
+				max: heat.max,
+				data: heat.positions
 			})
 			this.heroIndex = index
 		}
 	},
 	mounted() {
-		const heatmapEl = this.$refs.heatmap
-		const width = heatmapEl.offsetWidth
-		heatmapEl.style.height = width + 'px'
-		this.scale = width / .5 ** .5 / 128
-
 		this.heatmap = h337.create({
-			container: heatmapEl,
+			container: this.$refs.heatmap,
 			radius: 10
 		})
 		this.updateHeatMap(this.heroIndex)
@@ -93,8 +70,6 @@ export default {
 }
 
 .vision-map {
-	position: relative;
-
 	.vision {
 		position: absolute;
 		border: 2px solid green;
@@ -122,7 +97,14 @@ export default {
 
 .vision-map,
 .heat-map {
+    position: relative;
+    width: 100%;
+    padding-bottom: 100%;
+
 	img {
+	    position: absolute;
+        top: 0;
+        left: 0;
 		width: 100%;
 		vertical-align: bottom;
 	}

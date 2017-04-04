@@ -6,6 +6,7 @@ import API from 'src/constant/api'
 import { zh_CN } from 'src/constant/lang'
 import { percentify, polling, localData, parsePositions } from 'src/util'
 
+const { fromNow, duration } = DateLib
 
 export function auth({commit}) {
 	commit(types.AUTH)
@@ -24,9 +25,7 @@ export function loadLocalData({commit, state}) {
 		commit(types.GET_USERS_FETCH_SUCCESS, require('src/../.data/players.json'))
 		commit(types.GET_MATCHES_FETCH_SUCCESS, handleMatches(require('src/../.data/matches.json')))
 		const match = require('src/../.data/match.detail.json')
-		match.logs = parseLogs(match)
-		match.visions = parseVisions(match)
-		commit(types.GET_MATCH_FETCH_SUCCESS, handleMatch(match))
+		commit(types.GET_MATCH_FETCH_SUCCESS, parseMatch(handleMatch(match)))
 	}
 	const data = {}
 	data.users = localData.get('users') || []
@@ -119,7 +118,7 @@ export async function getMatchesFetch({commit, dispatch}, user) {
 
 export async function getMatchFetch({commit, dispatch}, matchid) {
 	const matchDetails = localData.get('matchDetails')
-	let match, logs, visions
+	let match, parsedMatch
 
 	if (matchDetails) {
 		match = matchDetails[matchid]
@@ -130,27 +129,24 @@ export async function getMatchFetch({commit, dispatch}, matchid) {
 	}
 
 	try {
-		logs = parseLogs(match)
-		visions = parseVisions(match)
+        parsedMatch = parseMatch(match)
 		// isDetail
-		if (logs && visions) {
-			localData.update('matchDetails', (v) => ({
-				...v,
-				matchid: match
-			}))
-		}
-		match.logs = logs
-		match.visions = visions
+		localData.update('matchDetails', (v) => ({
+			...v,
+			[matchid]: match
+		}))
 	} catch(e) {
 		const result = window.confirm('尚无完整比赛信息，是否解析？\n（过程需要几分钟，请耐心等候...）')
 		if (result) {
 			return dispatch('getMatchDetailFetch', matchid)
 		} else {
-			match.logs = []
-			match.visions = []
+            parsedMatch = match
+            parsedMatch.visions = []
+            parsedMatch.heats = []
+            parsedMatch.logs = []
 		}
 	}
-	match = handleMatch(match)
+	match = parsedMatch ? handleMatch(parsedMatch) : handleMatch(match)
 	commit(types.GET_MATCH_FETCH_SUCCESS, match)
 	router.push('/match/summary')
 }
@@ -178,63 +174,91 @@ export async function getMatchDetailFetch({dispatch}, matchid) {
 
 // handlers
 function handleMatches(matches) {
+    const { gameMode, skill } = zh_CN
 	return matches.map(match => ({
 		...match,
 		heroImage: HERO_MAP.ID_MAP[match.hero_id].img,
 		win: match.player_slot < 5 ? match.radiant_win : !match.radiant_win,
-		fromNow: DateLib.fromNow(new Date(match.start_time * 1000)),
+		fromNow: fromNow(new Date(match.start_time * 1000)),
 		parsed: !!match.version,
-        gameMode: zh_CN.gameMode[match.game_mode],
-        skillLevel: zh_CN.skill[match.skill]
+        gameMode: gameMode[match.game_mode],
+        skillLevel: skill[match.skill]
 	}))
 }
 
 function handleMatch(match) {
     match = Object.assign({}, match)
 	// 距离现在
-	match.fromNow = DateLib.fromNow(new Date(match.start_time * 1000))
+	match.fromNow = fromNow(new Date(match.start_time * 1000))
 	// 持续时间
-	match.duration = DateLib.duration(match.duration)
+	match.duration = duration(match.duration)
     // 等级
     match.skillLevel = zh_CN.skill[match.skill]
     // 模式
     match.gameMode = zh_CN.gameMode[match.game_mode]
 	// 补充img前缀
-	match.players.forEach(v => {
-		v.heroImage = HERO_MAP.ID_MAP[v.hero_id].img
-		v.item_0 = (ITEM_MAP.ID_MAP[v.item_0] || {}).img
-		v.item_1 = (ITEM_MAP.ID_MAP[v.item_1] || {}).img
-		v.item_2 = (ITEM_MAP.ID_MAP[v.item_2] || {}).img
-		v.item_3 = (ITEM_MAP.ID_MAP[v.item_3] || {}).img
-		v.item_4 = (ITEM_MAP.ID_MAP[v.item_4] || {}).img
-		v.item_5 = (ITEM_MAP.ID_MAP[v.item_5] || {}).img
-	})
+	match.players = match.players.map(v => ({
+        ...v,
+		heroImage: HERO_MAP.ID_MAP[v.hero_id].img,
+		item_0: (ITEM_MAP.ID_MAP[v.item_0] || {}).img,
+		item_1: (ITEM_MAP.ID_MAP[v.item_1] || {}).img,
+		item_2: (ITEM_MAP.ID_MAP[v.item_2] || {}).img,
+		item_3: (ITEM_MAP.ID_MAP[v.item_3] || {}).img,
+		item_4: (ITEM_MAP.ID_MAP[v.item_4] || {}).img,
+		item_5: (ITEM_MAP.ID_MAP[v.item_5] || {}).img,
+	}))
 	// 参战率
-	match.radiantPlayers = []
-	match.direPlayers = []
-	match.players.forEach(v => {
-		if (v.isRadiant) {
-			v.fight_ratio = percentify((v.assists + v.kills) / match.radiant_score)
-			match.radiantPlayers.push(v)
-		} else {
-			v.fight_ratio = percentify((v.assists + v.kills) / match.dire_score)
-			match.direPlayers.push(v)
-		}
-	})
+	match.radiantPlayers = match.players.slice(0, 5)
+	match.direPlayers = match.players.slice(5)
 	// 伤害比
-	match.radiant_damage = match.radiantPlayers.reduce((p, v) => p + v.hero_damage, 0)
-	match.dire_damage = match.direPlayers.reduce((p, v) => p + v.hero_damage, 0)
-	match.radiantPlayers.forEach(v => {
-		v.damagePercent = percentify(v.hero_damage / match.radiant_damage)
-	})
-	match.direPlayers.forEach(v => {
-		v.damagePercent = percentify(v.hero_damage / match.dire_damage)
-	})
+	const radiantDamage = match.radiantPlayers.reduce((p, v) => p + v.hero_damage, 0)
+	const direDamage = match.direPlayers.reduce((p, v) => p + v.hero_damage, 0)
+
+	match.radiantPlayers = match.radiantPlayers.map(v => ({
+        ...v,
+        fightPercent: percentify((v.assists + v.kills) / match.radiant_score),
+		damagePercent: percentify(v.hero_damage / radiantDamage),
+	}))
+	match.direPlayers = match.direPlayers.map(v => ({
+        ...v,
+        fightPercent: percentify((v.assists + v.kills) / match.dire_score),
+		damagePercent: percentify(v.hero_damage / direDamage),
+	}))
 	return match
 }
 
+function parseMatch(match) {
+    match = Object.assign({}, match)
+    match.logs = parseLogs(match)
+    match.visions = parseVisions(match)
+    match.heats = parseHeats(match)
+    return match
+}
+
+function parseHeats(match) {
+    const heats = []
+    const proportion = document.body.offsetWidth / 128
+	match.players.forEach(v => {
+        const positions = parsePositions(v.lane_pos).map(v => ({
+            x: Math.round(v.x * proportion),
+            y: Math.round(v.y * proportion),
+            value: v.value + 15
+        }))
+		// 热点位置
+		heats.push({
+            heroImage: HERO_MAP.ID_MAP[v.hero_id].img,
+            positions,
+            max: Math.max.apply(null, positions.map(v => v.value)),
+            min: 0
+        })
+	})
+    return heats
+}
+
 function parseVisions(match) {
-	const visions = []
+    const visions = []
+    const senWidth = document.body.offsetWidth / 12
+    const obsWidth = senWidth * 1600 / 850
 	match.players.forEach(v => {
 		v.sen_log.forEach(w => {
 			visions.push({
@@ -242,7 +266,8 @@ function parseVisions(match) {
 				time: w.time,
 				isRadiant: w.player_slot < 127,
 				x: w.x,
-				y: w.y
+				y: w.y,
+                width: senWidth
 			})
 		})
 		v.obs_log.forEach(w => {
@@ -251,15 +276,19 @@ function parseVisions(match) {
 				time: w.time,
 				isRadiant: w.player_slot < 127,
 				x: w.x,
-				y: w.y
+				y: w.y,
+                width: obsWidth
 			})
 		})
 	})
+    const scale = document.body.offsetWidth / 128
 	return visions
 		.sort((p, n) => p.time < n.time ? -1 : p.time > n.time ? 1 : 0)
 		.map(v => ({
 			...v,
-			time: v.time > 0 ? DateLib.duration(v.time) : '-' + DateLib.duration(Math.abs(v.time))
+            x: (v.x - 64) * scale - 25 + 'px',
+            y: (128 + 64 - v.y) * scale - 25 + 'px',
+			moment: v.time > 0 ? duration(v.time) : '-' + duration(Math.abs(v.time))
 		}))
 }
 
@@ -311,8 +340,6 @@ function parseLogs(match) {
 				isRadiant
 			})
 		})
-		// 热点位置
-		v.lane_positions = parsePositions(v.lane_pos)
 	})
 
 	// 团战记录
@@ -351,19 +378,24 @@ function parseLogs(match) {
 				items
 			}
 		})
+        const proportion = .5 ** .5
 		// 伤害、经验、经济 比例
 		players = players.map(w => ({
 			...w,
 			damagePercent: percentify(w.damage / totalDamage),
 			xpPercent: percentify(w.xp_delta / totalXp),
 			goldPercent: percentify(Math.abs(w.gold_delta / totalGold)),
-			positions: parsePositions(w.deaths_pos),
+			positions: parsePositions(w.deaths_pos).map(v => ({
+                ...v,
+                x: v.x * proportion,
+                y: v.y * proportion
+            })),
 		}))
 
 		logs.push({
 			type: 'teamfight',
-			start: DateLib.duration(v.start),
-			end: DateLib.duration(v.end),
+			start: duration(v.start),
+			end: duration(v.end),
 			time: v.start,
 			radiantPlayers: players.slice(0, 5),
 			direPlayers: players.slice(5),
@@ -376,6 +408,6 @@ function parseLogs(match) {
 		.sort((p, n) => p.time < n.time ? -1 : p.time > n.time ? 1 : 0)
 		.map(v => ({
 			...v,
-			time: v.time > 0 ? DateLib.duration(v.time) : '-' + DateLib.duration(Math.abs(v.time))
+			moment: v.time > 0 ? duration(v.time) : '-' + duration(Math.abs(v.time))
 		}))
 }

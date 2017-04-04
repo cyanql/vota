@@ -1,18 +1,18 @@
 <template>
     <d-scroller class="log-contianer" @lazy="onLazy">
         <d-card title="过滤器" icon="filter">
-    		<div class="filters">
-    			<span class="filter" :class="filters[key].value && 'opened'" v-for="key in Object.keys(filters)" @click="toggleFilter(key)">{{filters[key].name}}</span>
+    		<div class="log-filters">
+    			<span class="log-filter" :class="filters[key].value && 'opened'" v-for="key in Object.keys(filters)" @click="toggleFilter(key)">{{filters[key].name}}</span>
     		</div>
-    		<div class="filter-cost">
-    			<span class="label">物品金额</span>
+    		<div class="log-filter-cost">
+    			<span>物品金额</span>
     			<input type="tel" v-model.lazy.number="filterCost">
     		</div>
         </d-card>
         <d-card title="日志列表" icon="list">
     		<template v-for="(log, index) in logs">
-    			<d-teamfight class="log" v-if="log.type === 'teamfight'" :log="log" v-show="index < limit"></d-teamfight>
-    			<d-row v-else class="log" :class="log.isRadiant ? 'left' : 'right'" :log="log" v-show="index < limit"></d-row>
+    			<d-log-teamfight class="log-row" v-if="log.type === 'teamfight'" :log="log" v-show="index < limit"></d-log-teamfight>
+    			<d-log-normal v-else class="log-row" :class="log.isRadiant ? 'left' : 'right'" :log="log" v-show="index < limit"></d-log-normal>
     		</template>
     		<footer>
     			{{match.radiant_win ? '天辉' : '夜宴'}} 胜利
@@ -22,8 +22,8 @@
 </template>
 
 <script>
-import Row from './row'
-import Teamfight from './teamfight'
+import dLogNormal from './normal'
+import dLogTeamfight from './teamfight'
 import { mapState } from 'vuex'
 
 export default {
@@ -67,36 +67,36 @@ export default {
         }
 	},
 	components: {
-		dTeamfight: Teamfight,
-		dRow: Row
+		dLogTeamfight,
+		dLogNormal
 	}
 }
 </script>
 
-<style lang="scss">
-.log-contianer {
-	.filters {
+<style lang="scss" scoped>
+.log {
+	&-filters {
 		display: flex;
 		flex-wrap: wrap;
 		padding: 5px 0;
 		background-color: #fff;
-
-		.filter {
-			flex: 1;
-			text-align: center;
-			margin: 5px;
-			background-color: #ccc;
-			border-radius: 20px;
-			color: #666;
-
-			&.opened {
-				background-color: #666;
-				color: #fff;
-			}
-		}
 	}
 
-	.filter-cost {
+    &-filter {
+        flex: 1;
+        text-align: center;
+        margin: 5px;
+        background-color: #ccc;
+        border-radius: 20px;
+        color: #666;
+
+        &.opened {
+            background-color: #666;
+            color: #fff;
+        }
+    }
+
+	&-filter-cost {
 		display: flex;
 		width: 100%;
 		padding: 10px;
@@ -110,10 +110,8 @@ export default {
 		}
 	}
 
-	.log {
-		position: relative;
-		display: flex;
-		align-items: center;
+	&-row {
+	    display: flex;
 		height: 50px;
 		border-bottom: 1px solid #ddd;
 		background-color: #fff;
@@ -126,46 +124,12 @@ export default {
 			justify-content: flex-end;
 		}
 
-		figure {
-			&.square {
-				width: 30px;
-				height: 30px;
-			}
-
-			&.rectangle {
-				width: 30px;
-				height: 25px;
-			}
-
-			&.square,
-			&.rectangle {
-				line-height: 25px;
-				border-radius: 3px;
-				vertical-align: bottom;
-		    	background-size: cover;
-				background-position: center;
-				background-repeat: no-repeat;
-				text-shadow: 0 0 1px black;
-				color: #ddd;
-				font-size: 10px;
-
-				&.rune,
-				&.hero {
-					width: 30px;
-					height: 30px;
-				}
-
-				&.hero {
-					border-radius: 50%;
-				}
-			}
-		}
 	}
+}
 
-	footer {
-		text-align: center;
-		line-height: 100px;
-		font-size: 25px;
-	}
+footer {
+    text-align: center;
+    line-height: 100px;
+    font-size: 25px;
 }
 </style>

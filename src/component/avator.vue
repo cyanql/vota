@@ -20,10 +20,12 @@ export default {
 </script>
 <style lang="scss" scoped>
 .d-avator {
-    height: 30px;
+    width: 60px;
     vertical-align: bottom;
 
     &.circle {
+        width: 30px;
+        height: 30px;
         border-radius: 50px;
     }
 }
