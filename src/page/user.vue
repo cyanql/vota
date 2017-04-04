@@ -32,9 +32,7 @@ export default {
     },
 	computed: mapState({
         user: state => state.status.history.user,
-		matches(state) {
-            return state.matches
-        }
+		matches: state => state.matches
 	}),
 	methods: {
 		...mapActions([

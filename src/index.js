@@ -6,20 +6,20 @@ import * as Components from 'src/component'
 import App from './app'
 import router from './router'
 import store from './vuex'
-import 'add-to-homescreen/dist/style/addtohomescreen.css'
-import addToHomeScreen from 'src/lib/addToHomeScreen'
+import { localData } from 'src/util'
 
 Object.values(Components).forEach(Component => {
     Component && Component.name && Vue.component(Component.name, Component)
 })
 
-addToHomeScreen({
-    displayPace: 0
-})
+!store.state.status.fullscreen && alert('建议使用Chrome浏览器或Safari浏览器，并添加至主屏从而获得更好的用户体验')
 
-// 配合app的touchmove.stop 禁止全局下拉同时允许内部滑动
-document.body.addEventListener('touchmove', e => e.preventDefault(), false)
 require('fastclick').attach(document.body)
+
+window.onerror = function() {
+    alert('VotA - 运行错误，将清除缓存并返回首页')
+    localData.clear()
+}
 
 router.beforeEach((to, from, next) => {
     if (store.state.status.auth || to.name === 'home' || store.state.status.dev) {

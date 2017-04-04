@@ -71,11 +71,11 @@ const config = {
             // Your source logo
             logo: path.resolve(__dirname, 'src/vota.png'),
             // The prefix for all image files (might be a folder or a name)
-            prefix: 'icons-[hash]/',
+            prefix: 'favicons/',
             // Emit all stats of the generated icons
             emitStats: false,
             // The name of the json containing all favicon information
-            statsFilename: 'iconstats-[hash].json',
+            statsFilename: 'faviconstats.json',
             // Generate a cache file with control hashes and
             // don't rebuild the favicons until those hashes change
             persistentCache: true,

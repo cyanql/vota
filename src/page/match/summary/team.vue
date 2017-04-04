@@ -75,8 +75,8 @@ export default {
 				top: -20px;
 				width: 0;
 				height: 0;
-				border-bottom: 30px solid white;
-				border-left: 30px solid transparent;
+				border-bottom: 25px solid white;
+				border-left: 25px solid transparent;
 			}
 		}
 

@@ -14,3 +14,45 @@ input {
     border-radius: 3px;
     box-shadow: 0 0 3px rgba(0,0,0,.5) inset;
 }
+
+
+hr.placeholder {
+	border: none;
+	flex: 1;
+	min-height: 30px;
+}
+
+figure {
+	&.square {
+		width: 30px;
+		height: 30px;
+	}
+
+	&.rectangle {
+		width: 30px;
+		height: 25px;
+	}
+
+	&.square,
+	&.rectangle {
+		line-height: 25px;
+		border-radius: 3px;
+		vertical-align: bottom;
+    	background-size: cover;
+		background-position: center;
+		background-repeat: no-repeat;
+		text-shadow: 0 0 1px black;
+		color: #ddd;
+		font-size: 10px;
+
+		&.rune,
+		&.hero {
+			width: 30px;
+			height: 30px;
+		}
+
+		&.hero {
+			border-radius: 50%;
+		}
+	}
+}
