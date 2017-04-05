@@ -4,6 +4,7 @@ import DateLib from 'src/lib/DateLib'
 import { ITEM_MAP, HERO_MAP, RUNE_MAP } from 'src/constant/image'
 import API from 'src/constant/api'
 import { zh_CN } from 'src/constant/lang'
+import Modal from 'src/component/modal'
 import { percentify, polling, localData, parsePositions } from 'src/util'
 
 const { fromNow, duration } = DateLib
@@ -45,12 +46,14 @@ export function changeUserName({commit}, val) {
 
 // users
 export async function getUsersFetch({commit, dispatch}, name) {
+    Modal.spin(true)
 	if (/\d+/.test(name)) {
 		const user = await API.fetch(API.players._, {param: name})
 		dispatch('getMatchesFetch', user.profile)
 	} else {
 		const users = await API.fetch(API.search, {query: {q: name, similarity: .75}})
 		commit(types.GET_USERS_FETCH_SUCCESS, users)
+        Modal.spin(false)
 	}
 }
 
@@ -79,20 +82,24 @@ const matchQuery = {
 }
 
 export async function getOffsetMatchesFetch({commit, state}, offset) {
+    !offset && Modal.spin(true)
     const user = state.status.history.user
     const matches = await API.fetch(API.players.matches, {param: user.account_id, query: {...matchQuery, offset}})
     commit(types.GET_OFFSET_MATCHES_FETCH_SUCCESS, handleMatches(matches))
+    ;!offset && Modal.spin(false)
 }
 
 export async function getOtherUserMatchesFetch({commit, dispatch}, user) {
     if (!user.account_id) {
         return alert('用户资料未公开')
     }
+    Modal.spin(true)
 	const matches = await API.fetch(API.players.matches, {param: user.account_id, query: matchQuery})
     dispatch('backup')
     commit(types.GET_MATCHES_FETCH_SUCCESS, handleMatches(matches))
     commit(types.SELECT_USER, user)
 	router.push('/other-user')
+    Modal.spin(false)
 }
 
 // match
@@ -100,10 +107,12 @@ export async function getMatchesFetch({commit, dispatch}, user) {
     if (!user.account_id) {
         return alert('用户资料未公开')
     }
+    Modal.spin(true)
 	const matches = await API.fetch(API.players.matches, {param: user.account_id, query: matchQuery})
     commit(types.GET_MATCHES_FETCH_SUCCESS, handleMatches(matches))
     commit(types.SELECT_USER, user)
 	router.push('/user')
+    Modal.spin(false)
 
     localData.update('user', () => user)
     localData.update('users', users => {
@@ -125,6 +134,7 @@ export async function getMatchFetch({commit, dispatch}, matchid) {
 	}
 
 	if (!match) {
+        Modal.spin(true)
 		match = await API.fetch(API.matches, {param: matchid})
 	}
 
@@ -149,6 +159,7 @@ export async function getMatchFetch({commit, dispatch}, matchid) {
 	match = parsedMatch ? handleMatch(parsedMatch) : handleMatch(match)
 	commit(types.GET_MATCH_FETCH_SUCCESS, match)
 	router.push('/match/summary')
+    Modal.spin(false)
 }
 
 export async function getMatchDetailFetch({dispatch}, matchid) {
@@ -161,13 +172,14 @@ export async function getMatchDetailFetch({dispatch}, matchid) {
 	polling(async (done) => {
 		const json = await API.fetch(API.request.match, {param: data.job.jobId})
 		if (json.state === 'active') {
-			console.log(json.progress)
+            Modal.progress(json.progress)
 		} else if (json.state === 'completed') {
 			done()
 			dispatch('getMatchFetch', matchid)
+            Modal.progress(true)
 		} else {
 			done()
-			alert('解析失败')
+            Modal.progress(false)
 		}
 	}, 3000)
 }

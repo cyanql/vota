@@ -1,10 +1,10 @@
 
 @font-face {font-family: "iconfont";
-  src: url('iconfont.eot?t=1491212366373'); /* IE9*/
-  src: url('iconfont.eot?t=1491212366373#iefix') format('embedded-opentype'), /* IE6-IE8 */
-  url('iconfont.woff?t=1491212366373') format('woff'), /* chrome, firefox */
-  url('iconfont.ttf?t=1491212366373') format('truetype'), /* chrome, firefox, opera, Safari, Android, iOS 4.2+*/
-  url('iconfont.svg?t=1491212366373#iconfont') format('svg'); /* iOS 4.1- */
+  src: url('iconfont.eot?t=1491405179708'); /* IE9*/
+  src: url('iconfont.eot?t=1491405179708#iefix') format('embedded-opentype'), /* IE6-IE8 */
+  url('iconfont.woff?t=1491405179708') format('woff'), /* chrome, firefox */
+  url('iconfont.ttf?t=1491405179708') format('truetype'), /* chrome, firefox, opera, Safari, Android, iOS 4.2+*/
+  url('iconfont.svg?t=1491405179708#iconfont') format('svg'); /* iOS 4.1- */
 }
 
 .iconfont {
@@ -15,7 +15,15 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+.icon-check:before { content: "\e645"; }
+
+.icon-close:before { content: "\e646"; }
+
+.icon-loading:before { content: "\e64f"; }
+
 .icon-search:before { content: "\e65c"; }
+
+.icon-warn:before { content: "\e663"; }
 
 .icon-order:before { content: "\e66c"; }
 
