@@ -1,3 +1,10 @@
+@media all and (display-mode: standalone) {
+  body {
+    background-color: #fff; 
+  }
+}
+
+
 .list {
     &-item {
     	display: flex;

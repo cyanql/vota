@@ -7,6 +7,10 @@ export nav from './nav'
 export expandTransition from './expand-transition'
 export slideTransition from './slide-transition'
 
+export modal from './modal'
+export spin from './spin'
+export progress from './progress'
+
 // svg
 export cash from './svg/cash'
 export home from './svg/home'

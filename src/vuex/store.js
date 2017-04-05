@@ -3,7 +3,7 @@ import * as types from './types'
 const initialState = {
 	status: {
         states: [],
-        fullscreen: screen.width === window.innerWidth && screen.height === window.innerHeight,
+        fullscreen: window.navigator.standalone || document.webkitIsFullScreen,
 		dev: process.env.NODE_ENV === 'development',
 		auth: false,
 		username: '',
