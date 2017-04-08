@@ -13,5 +13,8 @@ export default {
 	update(key, callback) {
 		this.set(key, callback(this.get(key)))
 		return this
+	},
+	clear() {
+		localStorage.clear()
 	}
 }

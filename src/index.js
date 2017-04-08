@@ -16,9 +16,14 @@ Object.values(Components).forEach(Component => {
 
 require('fastclick').attach(document.body)
 
-window.onerror = function() {
-    alert('VotA - 运行错误，将清除缓存并返回首页')
+window.onerror = function(e) {
+    alert(`
+            VotA - 运行错误
+        将清除缓存并返回首页
+        ${e.message}
+    `)
     cache.clear()
+    router.push('/home')
 }
 
 router.beforeEach((to, from, next) => {

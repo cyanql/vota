@@ -25,10 +25,9 @@ export function restore({commit}) {
 // 装载本地数据
 export function loadLocalData({commit, state}) {
 	if (state.status.dev) {
-		commit(types.SEARCH_USERS_FETCH_SUCCESS, require('src/../.data/players.json'))
-		commit(types.GET_MATCHES_FETCH_SUCCESS, handleMatches(require('src/../.data/matches.json')))
-		const match = require('src/../.data/match.detail.json')
-		commit(types.GET_MATCH_FETCH_SUCCESS, parseMatch(handleMatch(match)))
+		// commit(types.SEARCH_USERS_FETCH_SUCCESS, require('src/../.data/players.json'))
+		// commit(types.GET_MATCHES_FETCH_SUCCESS, handleMatches(require('src/../.data/matches.json')))
+		// commit(types.GET_MATCH_FETCH_SUCCESS, parseMatch(handleMatch(require('src/../.data/match.detail.json'))))
 	}
 	const history = {}
 	history.users = cache.get('users') || []
