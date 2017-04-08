@@ -1,6 +1,6 @@
 @media all and (display-mode: standalone) {
   body {
-    background-color: #fff; 
+    background-color: #fff;
   }
 }
 
@@ -22,6 +22,21 @@ input {
     box-shadow: 0 0 3px rgba(0,0,0,.5) inset;
 }
 
+
+table {
+	width: 100%;
+	text-align: center;
+	margin: 5px 0;
+	background-color: white;
+
+	th {
+		color: #999;
+	}
+
+	tr {
+		line-height: 2;
+	}
+}
 
 hr.placeholder {
 	border: none;

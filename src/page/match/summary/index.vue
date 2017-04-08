@@ -8,7 +8,7 @@
 				<tr>
 					<td>{{match.fromNow}}</td>
 					<td>{{match.duration}}</td>
-					<td>{{match.skillLevel|| '无'}}</td>
+					<td>{{match.skillLevel || '-'}}</td>
 					<td>{{match.gameMode}}</td>
 				</tr>
 			</tbody>
@@ -30,8 +30,8 @@
 			>
 		</d-team>
         <d-card title="排名" icon="rank">
-            <span slot="button">
-                <d-icon icon="order"></d-icon>
+            <template slot="button">
+                <d-icon class="rank-order-icon" icon="order"></d-icon>
                 <select v-model="selectOptionValue">
                     <option value="gold_per_min">每分钟金钱</option>
                     <option value="xp_per_min">每分钟经验</option>
@@ -47,7 +47,7 @@
                     <option value="assists">助攻</option>
                     <option value="deaths">死亡</option>
                 </select>
-            </span>
+            </template>
             <div class="rank-row" v-for="player in players">
                 <d-avator class="rank-avator" :src="player.heroImage"></d-avator>
                 <span>{{player[selectOptionValue]}}</span>
@@ -90,26 +90,6 @@ export default {
 <style lang="scss" scoped>
 @import "~src/style/variable";
 
-h1 {
-	text-align: center;
-	padding: 10px;
-}
-
-table {
-	width: 100%;
-	text-align: center;
-	margin: 5px 0;
-	background-color: white;
-
-	th {
-		color: #999;
-	}
-
-	tr {
-		line-height: 2;
-	}
-}
-
 .rank {
     &-row {
         display: flex;
@@ -126,6 +106,10 @@ table {
     &-percent {
         height: 2px;
         background-color: $blue-6;
+    }
+
+    &-order-icon {
+        padding-right: 5px;
     }
 }
 </style>

@@ -8,7 +8,6 @@ export default {
         ...mapActions(['restore']),
         goBack() {
             this.$router.go(-1)
-            console.log('restore')
             setTimeout(() => {
                 this.restore()
             }, 100)

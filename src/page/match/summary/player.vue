@@ -5,7 +5,7 @@
 			<span class="row-avator-level">{{player.level}}</span>
 		</figure>
 		<div class="row-info">
-            <div class="row-info-header" @click="getOtherUserMatchesFetch(player)">
+            <div class="row-info-header" @click="usernameClick(player.account_id)">
                 <span class="row-info-username">{{player.personaname || '匿名'}}</span>
                 <span class="row-info-solo-rank" v-if="player.solo_competitive_rank">{{player.solo_competitive_rank}}</span>
             </div>
@@ -36,11 +36,28 @@
 </template>
 <script>
 import { mapActions } from 'vuex'
+import M from 'src/component/modal'
+
 export default {
 	props: ['player'],
-    methods: mapActions([
-        'getOtherUserMatchesFetch'
-    ])
+    methods: {
+        ...mapActions([
+            'getUserFetch',
+            'getOtherUserMatchesFetch'
+        ]),
+        async usernameClick(userid) {
+            if (!userid) {
+                return alert('用户资料未公开')
+            }
+            M.spin(true)
+            try {
+                await this.getUserFetch(userid)
+                await this.getOtherUserMatchesFetch(userid)
+            } catch(ignore) {}
+            M.spin(false)
+            this.$router.push('/other-user')
+        }
+    }
 }
 </script>
 

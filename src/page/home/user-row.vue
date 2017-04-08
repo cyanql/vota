@@ -1,15 +1,15 @@
 <template>
     <div class="user-row" @click="onClick">
-        <d-avator circle :src="user.avatarfull"></d-avator>
-        <span class="username">{{user.personaname}}</span>
-        <span class="userid">{{user.account_id}}</span>
+        <d-avator circle :src="userProfile.avatarfull"></d-avator>
+        <span class="username">{{userProfile.personaname}}</span>
+        <span class="userid">{{userProfile.account_id}}</span>
         <span class="arrow"><d-icon icon="right"></d-icon></span>
     </div>
 </template>
 
 <script>
 export default {
-    props: ['user'],
+    props: ['userProfile'],
     methods: {
         onClick(e) {
             this.$emit('click', e)
