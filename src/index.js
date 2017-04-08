@@ -18,12 +18,12 @@ require('fastclick').attach(document.body)
 
 window.onerror = function(e) {
     alert(`
-            VotA - 运行错误
+          VotA - 运行错误
         将清除缓存并返回首页
-        ${e.message}
+		  ${e.message}
     `)
     cache.clear()
-    router.push('/home')
+    window.location.reload()
 }
 
 router.beforeEach((to, from, next) => {
