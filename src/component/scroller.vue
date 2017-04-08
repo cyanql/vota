@@ -6,6 +6,7 @@
 
 <script>
 import plotform from 'src/util/plotform'
+import throttle from 'src/util/throttle'
 
 if (!plotform.android) {
     document.body.addEventListener('touchmove', e => e.preventDefault(), false)
@@ -40,12 +41,12 @@ export default {
         }
 
         let scrollDistance = 0
-        el.addEventListener('scroll', (e) => {
+        el.addEventListener('scroll', throttle((e) => {
             if (el.scrollTop > el.scrollHeight - el.clientHeight * this.lazyNumber && el.scrollTop > scrollDistance) {
                 scrollDistance = el.scrollTop
                 this.$emit('lazy', e)
             }
-        })
+        }, 500))
     },
 }
 </script>

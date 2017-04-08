@@ -1,7 +1,23 @@
 <template>
     <d-container>
-        <d-nav :title="user.account_id" @left-click="goBack"></d-nav>
+        <d-nav :title="user.profile.account_id" @left-click="goBack"></d-nav>
         <d-scroller @lazy="onLazy">
+            <d-card title="信息" icon="profile">
+        		<table>
+        			<thead>
+        				<tr><th>场次</th><th>胜率</th><th>MMR</th><th>SCR</th><th>CR</th></tr>
+        			</thead>
+        			<tbody>
+        				<tr>
+                            <td>{{user.totalGames || '-'}}</td>
+                            <td>{{user.winPercent || '-'}}</td>
+                            <td>{{user.mmr_estimate.estimate || '-'}}</td>
+                            <td>{{user.solo_competitive_rank || '-'}}</td>
+                            <td>{{user.competitive_rank || '-'}}</td>
+        				</tr>
+        			</tbody>
+        		</table>
+            </d-card>
     	    <d-card title="比赛" icon="selection">
         		<div class="match-row list-item" v-for="match in matches" @click="getMatchFetch(match.match_id)">
         			<d-avator class="avator" :src="match.heroImage"></d-avator>

@@ -4,8 +4,10 @@ import DateLib from 'src/lib/DateLib'
 import { ITEM_MAP, HERO_MAP, RUNE_MAP } from 'src/constant/image'
 import API from 'src/constant/api'
 import { zh_CN } from 'src/constant/lang'
-import Modal from 'src/component/modal'
-import { percentify, polling, localData, parsePositions } from 'src/util'
+import M from 'src/component/modal'
+import { percentify, polling, cache, parsePositions } from 'src/util'
+
+global.cache = cache
 
 const { fromNow, duration } = DateLib
 
@@ -23,19 +25,19 @@ export function restore({commit}) {
 // 装载本地数据
 export function loadLocalData({commit, state}) {
 	if (state.status.dev) {
-		commit(types.GET_USERS_FETCH_SUCCESS, require('src/../.data/players.json'))
+		commit(types.SEARCH_USERS_FETCH_SUCCESS, require('src/../.data/players.json'))
 		commit(types.GET_MATCHES_FETCH_SUCCESS, handleMatches(require('src/../.data/matches.json')))
 		const match = require('src/../.data/match.detail.json')
 		commit(types.GET_MATCH_FETCH_SUCCESS, parseMatch(handleMatch(match)))
 	}
-	const data = {}
-	data.users = localData.get('users') || []
-    data.user = localData.get('user')
-	commit(types.LOAD_LOCALSTORAGE, data)
+	const history = {}
+	history.users = cache.get('users') || []
+    history.user = cache.get('user')
+	commit(types.LOAD_LOCALSTORAGE, history)
 }
 
 export function removeLocalData({commit}, key) {
-	localData.remove(key)
+	cache.remove(key)
 	window.confirm('确认是否清空历史记录') && commit(types.LOAD_LOCALSTORAGE, {users: []})
 }
 
@@ -45,16 +47,34 @@ export function changeUserName({commit}, val) {
 }
 
 // users
-export async function getUsersFetch({commit, dispatch}, name) {
-    Modal.spin(true)
-	if (/\d+/.test(name)) {
-		const user = await API.fetch(API.players._, {param: name})
-		dispatch('getMatchesFetch', user.profile)
-	} else {
-		const users = await API.fetch(API.search, {query: {q: name, similarity: .75}})
-		commit(types.GET_USERS_FETCH_SUCCESS, users)
-        Modal.spin(false)
-	}
+export async function searchUsersFetch({commit, dispatch}, username) {
+	const userBriefProfiles = await API.fetch(API.search, {query: {q: username, similarity: .75}})
+	commit(types.SEARCH_USERS_FETCH_SUCCESS, userBriefProfiles)
+}
+
+export async function getUserFetch({commit, dispatch}, userid) {
+	const user = await API.fetch(API.players._, {param: userid})
+    if (!user.profile) {
+        alert('用户不存在')
+        throw new Error('用户不存在')
+    }
+    // add win & lose to user
+    const wl = await API.fetch(API.players.wl, {param: userid})
+    const newUser = Object.assign({}, user, wl)
+    newUser.totalGames = newUser.win + newUser.lose
+    newUser.winPercent = percentify(newUser.win / newUser.totalGames)
+
+    commit(types.SET_CURRENT_USER, newUser)
+
+    cache.update('user', () => user)
+    cache.update('users', users => {
+        if (Array.isArray(users)) {
+            users.every(v => v.profile.account_id !== user.profile.account_id) && users.push(user)
+            return users
+        } else {
+            return [user]
+        }
+    })
 }
 
 const matchQuery = {
@@ -81,52 +101,26 @@ const matchQuery = {
     ]
 }
 
-export async function getOffsetMatchesFetch({commit, state}, offset) {
-    !offset && Modal.spin(true)
-    const user = state.status.history.user
-    const matches = await API.fetch(API.players.matches, {param: user.account_id, query: {...matchQuery, offset}})
-    commit(types.GET_OFFSET_MATCHES_FETCH_SUCCESS, handleMatches(matches))
-    ;!offset && Modal.spin(false)
-}
-
-export async function getOtherUserMatchesFetch({commit, dispatch}, user) {
-    if (!user.account_id) {
-        return alert('用户资料未公开')
-    }
-    Modal.spin(true)
-	const matches = await API.fetch(API.players.matches, {param: user.account_id, query: matchQuery})
+export async function getOtherUserMatchesFetch({commit, dispatch}, userid) {
+	const matches = await API.fetch(API.players.matches, {param: userid, query: matchQuery})
     dispatch('backup')
     commit(types.GET_MATCHES_FETCH_SUCCESS, handleMatches(matches))
-    commit(types.SELECT_USER, user)
-	router.push('/other-user')
-    Modal.spin(false)
 }
 
 // match
-export async function getMatchesFetch({commit, dispatch}, user) {
-    if (!user.account_id) {
-        return alert('用户资料未公开')
-    }
-    Modal.spin(true)
-	const matches = await API.fetch(API.players.matches, {param: user.account_id, query: matchQuery})
+export async function getMatchesFetch({commit, dispatch}, userid) {
+	const matches = await API.fetch(API.players.matches, {param: userid, query: matchQuery})
     commit(types.GET_MATCHES_FETCH_SUCCESS, handleMatches(matches))
-    commit(types.SELECT_USER, user)
-	router.push('/user')
-    Modal.spin(false)
+}
 
-    localData.update('user', () => user)
-    localData.update('users', users => {
-        if (users) {
-            users.every(v => v.account_id !== user.account_id) && users.push(user)
-            return users
-        } else {
-            return [user]
-        }
-    })
+export async function getOffsetMatchesFetch({commit, state}, offset) {
+    const user = state.status.history.user
+    const matches = await API.fetch(API.players.matches, {param: user.profile.account_id, query: {...matchQuery, offset}})
+    commit(types.GET_OFFSET_MATCHES_FETCH_SUCCESS, handleMatches(matches))
 }
 
 export async function getMatchFetch({commit, dispatch}, matchid) {
-	const matchDetails = localData.get('matchDetails')
+	const matchDetails = cache.get('matchDetails')
 	let match, parsedMatch
 
 	if (matchDetails) {
@@ -134,14 +128,14 @@ export async function getMatchFetch({commit, dispatch}, matchid) {
 	}
 
 	if (!match) {
-        Modal.spin(true)
+        M.spin(true)
 		match = await API.fetch(API.matches, {param: matchid})
 	}
 
 	try {
         parsedMatch = parseMatch(match)
 		// isDetail
-		localData.update('matchDetails', (v) => ({
+		cache.update('matchDetails', (v) => ({
 			...v,
 			[matchid]: match
 		}))
@@ -159,7 +153,7 @@ export async function getMatchFetch({commit, dispatch}, matchid) {
 	match = parsedMatch ? handleMatch(parsedMatch) : handleMatch(match)
 	commit(types.GET_MATCH_FETCH_SUCCESS, match)
 	router.push('/match/summary')
-    Modal.spin(false)
+    M.spin(false)
 }
 
 export async function getMatchDetailFetch({dispatch}, matchid) {
@@ -172,14 +166,14 @@ export async function getMatchDetailFetch({dispatch}, matchid) {
 	polling(async (done) => {
 		const json = await API.fetch(API.request.match, {param: data.job.jobId})
 		if (json.state === 'active') {
-            Modal.progress(json.progress)
+            M.progress(json.progress)
 		} else if (json.state === 'completed') {
 			done()
 			dispatch('getMatchFetch', matchid)
-            Modal.progress(true)
+            M.progress(true)
 		} else {
 			done()
-            Modal.progress(false)
+            M.progress(false)
 		}
 	}, 3000)
 }

@@ -6,7 +6,7 @@ import * as Components from 'src/component'
 import App from './app'
 import router from './router'
 import store from './vuex'
-import { localData } from 'src/util'
+import { cache } from 'src/util'
 
 Object.values(Components).forEach(Component => {
     Component && Component.name && Vue.component(Component.name, Component)
@@ -18,7 +18,7 @@ require('fastclick').attach(document.body)
 
 window.onerror = function() {
     alert('VotA - 运行错误，将清除缓存并返回首页')
-    localData.clear()
+    cache.clear()
 }
 
 router.beforeEach((to, from, next) => {

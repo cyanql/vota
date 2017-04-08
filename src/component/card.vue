@@ -25,7 +25,7 @@ export default {
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .d-card {
     &-header {
     	display: flex;
@@ -44,6 +44,9 @@ export default {
     }
 
     &-btn-group {
+        display: flex;
+        justify-content: center;
+        align-items: center;
         opacity: .5;
         border: 1px solid rgba(0,0,0,.1);
         padding: 0 5px;
